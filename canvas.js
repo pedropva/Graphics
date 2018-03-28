@@ -19,8 +19,12 @@ function drawLine(Sx,Sy,Ex,Ey){//starting x, starting y, ending x, ending y
 	ctx.lineTo(Ex, Ey);
 	ctx.stroke();	
 }
-function drawPoligon(){
-	//draw multiple lines
+
+function drawPolygon(points,length){//points is a array with the sequence of points to close the polygon
+	for (var i = 0; i <= parseInt(length)/2; i=i+2) {
+		drawLine(points[i],points[i+1],points[i+2],points[i+3]);
+	}
+	drawLine(points[i],points[i+1],points[0],points[1]);
 }
 function drawBezier(Sx,Sy,C1x,C1y,C2x,C2y,Ex,Ey){//C1 and C2: Control point 1 and 2
 	ctx.beginPath();
@@ -31,12 +35,12 @@ function drawBezier(Sx,Sy,C1x,C1y,C2x,C2y,Ex,Ey){//C1 and C2: Control point 1 an
 
 function drawArc(Cx,Cy,R,Sa,Ea){//Sa and Ea: starting and Ending angle, C: center R:Radius
 	ctx.beginPath();
-	ctx.arc(Cx,Cy,R,Sa,Ea);//Example: (100,75,50,0*Math.PI,1.5*Math.PI
+	ctx.arc(Cx,Cy,R,Sa*Math.PI,Ea*Math.PI);//Example: (100,75,50,0*Math.PI,1.5*Math.PI
 	ctx.stroke();
 }
-function drawText(text,x,y){
+function drawText(x,y,text){
 	ctx.font = "30px Arial";
-	ctx.fillText("Hello World", 10, 50);
+	ctx.fillText(text, x, y);
 }
 function drawLinearGradient(Sx,Sy,Ex,Ey,colors){//implement colors vector
 	// Create gradient
@@ -98,34 +102,31 @@ function drawFromFile(data){
 		}else if(curLine.indexOf("text") !== -1){
 			curMode = "text";
 		}else{//if its not a mode-changing  line then its a element line
+			curLine = curLine.split(",");
 			switch(curMode){
 				case "point":
-					curLine = curLine.split(",");
+					ctx.fillStyle="#FF0000";
 					drawPoint(curLine[0],curLine[1]);
 					break;
 				case "line":
-					curLine = curLine.split(",");
+					ctx.strokeStyle="#00FF00";
 					drawLine(curLine[0],curLine[1],curLine[2],curLine[3]);
 					break;
 				case "polygon":
-					curLine = curLine.split(",");
-					for (var i = 0; i <= parseInt(curLine.length)/2; i=i+2) {
-						if(i==0){
-							drawLine(curLine[i],curLine[i+1],curLine[i+2],curLine[i+3]);
-						}else{
-							drawLine(curLine[i],curLine[i+1],curLine[i+2],curLine[i+3]);
-						}
-					}
-					drawLine(curLine[i],curLine[i+1],curLine[0],curLine[1]);
+					ctx.strokeStyle="#0000FF";
+					drawPolygon(curLine,curLine.length);
 					break;
 				case "arc":
-					
+					ctx.strokeStyle="#FF0000";
+					drawArc(curLine[0],curLine[1],curLine[2],curLine[3],curLine[4]);
 					break;
 				case "bezier":
-					
+					ctx.strokeStyle="#FF00FF";
+					drawBezier(curLine[0],curLine[1],curLine[2],curLine[3],curLine[4],curLine[5],curLine[6],curLine[7]);
 					break;
 				case "text":
-					
+					ctx.fillStyle="#FFAA44";
+					drawText(curLine[0],curLine[1],curLine[2]);
 					break;
 				default:
 					//?
