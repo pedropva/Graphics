@@ -1,0 +1,67 @@
+body {
+    /*background-color: lightblue;*/
+}
+
+h1 {
+    color: white;
+    text-align: center;
+}
+#paint{
+	display: table-row;
+}
+#canvas{
+	display: table-cell;
+}
+#toolbar{
+    display: table-caption;
+    margin-bottom: 290%;
+}
+#Point{
+	height: 50px;
+	width: 50px;
+	background: url(Icons/Point2.png)
+}
+#Line{
+	height: 50px;
+	width: 50px;
+	background: url(Icons/Line2.png)
+}
+#Poligon{
+	height: 50px;
+	width: 50px;
+	background: url(Icons/Poligon2.png)
+}
+#Arc{
+	height: 50px;
+	width: 50px;
+	background: url(Icons/Arc2.png)
+}
+#Bezier{
+	height: 50px;
+	width: 50px;
+	background: url(Icons/Bezier2.png)
+}
+#Text{
+	height: 50px;
+	width: 50px;
+	background: url(Icons/Text2.png)
+}
+#Eraser{
+	height: 50px;
+	width: 50px;
+	background: url(Icons/Eraser.png)
+}
+p {
+    font-family: verdana;
+    font-size: 20px;
+}
+/*
+  background-color:#f1f1f1;
+  width:100%;
+  overflow:auto;
+  position:absolute;
+  top:138px;
+  bottom:0;
+  height:auto;
+}
+*/

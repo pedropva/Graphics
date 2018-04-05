@@ -1,10 +1,35 @@
 <!DOCTYPE html>
 <html>
-<body>
-
-<canvas id="myCanvas" width="500" height="500" style="border:1px solid #000000;">
-Your browser does not support the HTML5 canvas tag.
-</canvas>
-<script type="text/javascript" src="canvas.js"></script>
-</body>
+	<head>
+		<link rel="stylesheet" type="text/css" href="index.css">
+	</head>
+	<body>
+		<div id="paint">
+			<div id="canvas">
+				<canvas id="myCanvas" width="500" height="500" style="border:1px solid #000000;">
+				Your browser does not support the HTML5 canvas tag.
+				</canvas>
+			</div>
+		<div id="toolbar">
+			<button src="Icons/Point2.png" alt="Point" id="Point" onclick="selectMode('point')">
+			<button src="Icons/Line2.png" alt="Line" id="Line" onclick="selectMode('line')">
+			<button src="Icons/Poligon2.png" alt="Poligon" id="Poligon" onclick="selectMode('poligon')">
+			<button src="Icons/Arc2.png" alt="Arc" id="Arc" onclick="selectMode('arc')">
+			<button src="Icons/Bezier2.png" alt="Bezier" id="Bezier" onclick="selectMode('bezier')">
+			<button src="Icons/Text2.png" alt="Text" id="Text" onclick="selectMode('text')">
+			<button src="Icons/Eraser.png" alt="Eraser" id="Eraser" onclick="selectMode('eraser')">
+		</div>
+		</div>
+		
+		<script type="text/javascript" src="Code/jquery-3.3.1.min.js"></script>
+		<script type="text/javascript" src="Code/Classes/utils.js"></script>
+		<script type="text/javascript" src="Code/Classes/point.js"></script>
+		<script type="text/javascript" src="Code/Classes/line.js"></script>
+		<script type="text/javascript" src="Code/Classes/poligon.js"></script>
+		<script type="text/javascript" src="Code/Classes/arc.js"></script>
+		<script type="text/javascript" src="Code/Classes/bezier.js"></script>
+		<script type="text/javascript" src="Code/Classes/text.js"></script>
+		<script type="text/javascript" src="Code/Classes/image.js"></script>
+		<script type="text/javascript" src="Code/canvas.js"></script>
+	</body>
 </html>

@@ -1,23 +1,11 @@
 
-var c = document.getElementById("myCanvas");
-var ctx = c.getContext("2d");
-var file ="./draw.txt";
-var grd; //holds gradient data
-/*FONTS:
-https://www.w3schools.com/tags/ref_canvas.asp
-https://stackoverflow.com/questions/14446447/how-to-read-a-local-text-file
-https://www.w3schools.com/html/html5_canvas.asp
-*/
-readTextFile(file);
 function drawPoint(x,y){
 	ctx.moveTo(x, y);
 	ctx.fillRect(x,y,5,5);
-	ctx.stroke();
 }
 function drawLine(Sx,Sy,Ex,Ey){//starting x, starting y, ending x, ending y
 	ctx.moveTo(Sx, Sy);
-	ctx.lineTo(Ex, Ey);
-	ctx.stroke();	
+	ctx.lineTo(Ex, Ey);	
 }
 
 function drawPolygon(points,length){//points is a array with the sequence of points to close the polygon
@@ -30,13 +18,11 @@ function drawBezier(Sx,Sy,C1x,C1y,C2x,C2y,Ex,Ey){//C1 and C2: Control point 1 an
 	ctx.beginPath();
 	ctx.moveTo(Sx,Sy);
 	ctx.bezierCurveTo(C1x,C1y,C2x,C2y,Ex,Ey);
-	ctx.stroke();
 }
 
 function drawArc(Cx,Cy,R,Sa,Ea){//Sa and Ea: starting and Ending angle, C: center R:Radius
 	ctx.beginPath();
 	ctx.arc(Cx,Cy,R,Sa*Math.PI,Ea*Math.PI);//Example: (100,75,50,0*Math.PI,1.5*Math.PI
-	ctx.stroke();
 }
 function drawText(x,y,text){
 	ctx.font = "30px Arial";
@@ -54,10 +40,7 @@ function drawCircularGradient(C0x,C0y,R0,C1x,C1y,R1){
 	grd.addColorStop(0, "red");
 	grd.addColorStop(1, "white");
 }
-function drawImage(imgId,x,y){
-	var img = document.getElementById(imgId);
-	ctx.drawImage(img, x, y);
-}
+
 function readTextFile(file)
 {
     var rawFile = new XMLHttpRequest();
@@ -75,12 +58,29 @@ function readTextFile(file)
     }
     rawFile.send(null);
 }
+function selectMode(which){
+	if(which === "point"){
+			curMode = "point";
+		}else if(which === "line"){
+			curMode = "line";
+		}else if(which === "poligon"){
+			curMode = "poligon";
+		}else if(which === "arc"){
+			curMode = "arc";
+		}else if(which === "bezier"){
+			curMode = "bezier";
+		}else if(which === "text"){
+			curMode = "text";
+		}else if(which === "eraser"){
+			curMode = "eraser";
+		}else{
+
+		}
+	console.log("Mode set:" + curMode);
+}
 function drawFromFile(data){
-	var curLine="";
-	var nLine=0;
 	data = data.toLowerCase();
 	var dataSize = parseInt(data.length);
-	curMode = "none";
 	while(nLine< dataSize ){//while we're not in the end of file 
 		curLine = "";
 		while(data[nLine]!='\n' && nLine < dataSize ){//read each line
@@ -93,8 +93,8 @@ function drawFromFile(data){
 			curMode = "point";
 		}else if(curLine.indexOf("line") !== -1){
 			curMode = "line";
-		}else if(curLine.indexOf("polygon") !== -1){
-			curMode = "polygon";
+		}else if(curLine.indexOf("poligon") !== -1){
+			curMode = "poligon";
 		}else if(curLine.indexOf("arc") !== -1){
 			curMode = "arc";
 		}else if(curLine.indexOf("bezier") !== -1){
@@ -112,9 +112,9 @@ function drawFromFile(data){
 					ctx.strokeStyle="#00FF00";
 					drawLine(curLine[0],curLine[1],curLine[2],curLine[3]);
 					break;
-				case "polygon":
+				case "poligon":
 					ctx.strokeStyle="#0000FF";
-					drawPolygon(curLine,curLine.length);
+					drawPoligon(curLine,curLine.length);
 					break;
 				case "arc":
 					ctx.strokeStyle="#FF0000";
@@ -131,6 +131,7 @@ function drawFromFile(data){
 				default:
 					//?
 			}
+			ctx.stroke();
 		}
 	}	
 }
