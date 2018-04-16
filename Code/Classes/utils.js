@@ -4,8 +4,10 @@ function drawPoint(x,y){
 	ctx.fillRect(x,y,5,5);
 }
 function drawLine(Sx,Sy,Ex,Ey){//starting x, starting y, ending x, ending y
+	ctx.beginPath();
 	ctx.moveTo(Sx, Sy);
 	ctx.lineTo(Ex, Ey);	
+	ctx.closePath();
 }
 
 function drawPolygon(points,length){//points is a array with the sequence of points to close the polygon
