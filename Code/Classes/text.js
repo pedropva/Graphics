@@ -12,3 +12,9 @@ Text.prototype.draw = function(ctx) {
 	ctx.font = this.font;
 	ctx.fillText(this.text, this.x, this.y);
 }
+// Determine if a text is inside the mouse's bounds
+Text.prototype.contains = function(mx, my, tol) {
+	// All we have to do is make sure the Mouse X,Y fall in the area between
+	// the shape's X and (X + Width) and its Y and (Y + Height)
+	return  ((mx+tol > this.x)||(mx-tol > this.x)) && ((mx-tol <= this.x)||(mx+tol <= this.x)) && ((my+tol > this.y)||(my-tol > this.y)) && ((my-tol <= this.y)||(my+tol <= this.y));
+}

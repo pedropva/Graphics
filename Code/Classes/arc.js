@@ -14,6 +14,7 @@ Arc.prototype.draw = function(ctx) {
 	ctx.beginPath();
 	ctx.arc(this.Cx,this.Cy,this.R,this.Sa,this.Ea);//Example: (100,75,50,0*Math.PI,1.5*Math.PI
 	//ctx.fill();
+	ctx.closePath();
 }
 
 // Determine if a arc is inside the mouse's bounds

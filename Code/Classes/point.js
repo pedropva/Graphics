@@ -16,5 +16,5 @@ Point.prototype.draw = function(ctx) {
 Point.prototype.contains = function(mx, my, tol) {
 	// All we have to do is make sure the Mouse X,Y fall in the area between
 	// the shape's X and (X + Width) and its Y and (Y + Height)
-	return  (this.x <= mx+tol) && (this.x > mx-tol) && (this.y <= my+tol) && (this.y > my-tol);
+	return  ((mx+tol > this.x)||(mx-tol > this.x)) && ((mx-tol <= this.x)||(mx+tol <= this.x)) && ((my+tol > this.y)||(my-tol > this.y)) && ((my-tol <= this.y)||(my+tol <= this.y));
 }

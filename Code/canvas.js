@@ -23,6 +23,7 @@ var dragging = false; // Keep track of when we are dragging
  // the current selected object.
  // In the future we could turn this into an array for multiple selection
  var selection = null;
+var previousColor = "#000000";
 var dragoffx = 0; // See mousedown and mousemove events for explanation
 var dragoffy = 0;
 // **** Options! ****
@@ -45,42 +46,58 @@ function clear() {
 function draw() {
   //console.log(shapes);
   // if our state is invalid, redraw and validate!
-  if (!valid) {
-  	clear();
+	if (!valid) {
+		clear();
 
-	// ** Add stuff you want drawn in the background all the time here **
-	//resfresh the current drawing shape
+		// ** Add stuff you want drawn in the background all the time here **
+		//resfresh the current drawing shape
 
-	// draw all shapes
-	var l = shapes.length;
-	for (var i = 0; i < l; i++) {
-		var shape = shapes[i];
+		// draw all shapes
+		var l = shapes.length;
+		for (var i = 0; i < l; i++) {
+			var shape = shapes[i];
 
-		if(shape != undefined){    
-		// We can skip the drawing of elements that have moved off the screen:
-		if (shape.x > canvas.width || shape.y > canvas.height ||shape.x + shape.w < 0 || shape.y + shape.h < 0) continue;
-		shapes[i].draw(ctx);		
-		ctx.stroke();
+			if(shape != undefined){    
+				// We can skip the drawing of elements that have moved off the screen:
+				if (shape.x > canvas.width || shape.y > canvas.height ||shape.x + shape.w < 0 || shape.y + shape.h < 0) continue;
+					shapes[i].draw(ctx);		
+					ctx.stroke();
+				}
+			}
+		// draw selection
+		// right now this is just a stroke along the edge of the selected Shape
+		if (selection != null) {
+			if(selection.constructor.name == "Point"){
+				var aux = ctx.strokeStyle;
+				var aux2 = ctx.lineWidth;
+				ctx.strokeStyle = selectionColor;
+				ctx.lineWidth = selectionWidth;
+				var mySel = selection;
+				ctx.strokeRect(mySel.x,mySel.y,mySel.w,mySel.h);	
+				ctx.strokeStyle = aux;
+				ctx.lineWidth = aux2;
+			}else if(selection.constructor.name.indexOf("Bezier") != -1){
+				//console.log(selection);
+				var aux = ctx.strokeStyle;
+				var aux2 = ctx.lineWidth;
+				ctx.strokeStyle = selectionColor;
+				ctx.lineWidth = selectionWidth;
+				ctx.beginPath();
+				ctx.moveTo(selection.Sx, selection.Sy);
+				ctx.lineTo(selection.C1x, selection.C1y);
+				ctx.moveTo(selection.Ex, selection.Ey);
+				ctx.lineTo(selection.C2x, selection.C2y);
+				ctx.closePath();
+				ctx.stroke();
+				ctx.strokeStyle = aux;
+				ctx.lineWidth = aux2;
+			}
+		}
+		
+		// ** Add stuff you want drawn on top all the time here **
+		//ctx.stroke();
+		valid = true;
 	}
-}
-
-	// draw selection
-	// right now this is just a stroke along the edge of the selected Shape
-	if (selection != null) {
-		var aux = ctx.strokeStyle;
-		var aux2 = ctx.lineWidth;
-		ctx.strokeStyle = selectionColor;
-		ctx.lineWidth = selectionWidth;
-		var mySel = selection;
-		ctx.strokeRect(mySel.x,mySel.y,mySel.w,mySel.h);
-		ctx.strokeStyle = aux;
-		ctx.lineWidth = aux2;
-	}
-	
-	// ** Add stuff you want drawn on top all the time here **
-	ctx.stroke();
-	valid = true;
-}
 }
 function getMouse(e) {
 	var offsetX = 8;
@@ -129,12 +146,10 @@ function createShape(x,y,w,h,color){
 		drawing = new Arc(x,y,0,x,y,color);
 		return drawing;
 		case "bezier":
-
-		drawing = new Line(x,y,x,y,color);
+		drawing = new Bezier(x,y,x+50,y+50,x+60,y+30,x,y,color);
 		return drawing;
 		case "text":
-
-		drawing = new Line(x,y,x,y,color);
+		drawing = new Text(x,y,"Hi",color);
 		return drawing;
 		default:
 		  //?
@@ -145,11 +160,11 @@ function createShape(x,y,w,h,color){
 canvas.addEventListener('selectstart', function(e) { e.preventDefault(); return false; }, false);
   // Up, down, and move are for dragging
   canvas.addEventListener('mousedown', function(e) {
-  	var mouse = getMouse(e);
-  	var mx = mouse.x;
-  	var my = mouse.y;
-  	var l = shapes.length;
-  	/*
+	var mouse = getMouse(e);
+	var mx = mouse.x;
+	var my = mouse.y;
+	var l = shapes.length;
+	/*
 	The value of which will be:
 
 	1 for the left button
@@ -159,17 +174,25 @@ canvas.addEventListener('selectstart', function(e) { e.preventDefault(); return 
 	if(e.which == 2){
 		drawing = null;
 	}
-  	for (var i = l-1; i >= 0; i--) {
-  		if(shapes[i] != undefined){
-  			if (shapes[i].contains(mx, my,15)) {
-  				var mySel = shapes[i];
+	for (var i = l-1; i >= 0; i--) {
+		if(shapes[i] != undefined){
+			if (shapes[i].contains(mx, my,15)) {
+				var mySel = shapes[i];
 				// Keep track of where in the object we clicked
 				// so we can move it smoothly (see mousemove)
 				dragoffx = mx - mySel.x;
 				dragoffy = my - mySel.y;
 				dragging = true;
+				if (selection) {
+					selection.color = previousColor;
+				}
 				selection = mySel;
+				if(previousColor.indexOf("#FF0000") == -1){
+					previousColor = selection.color;
+				}
+				selection.color = "#FF0000";
 				valid = false;
+				console.log(selection);
 				return;
 			}
 		}
@@ -177,15 +200,17 @@ canvas.addEventListener('selectstart', function(e) { e.preventDefault(); return 
 	// havent returned means we have failed to select anything.
 	// If there was an object selected, we deselect it
 	if (selection) {
+		selection.color = previousColor;
+		previousColor = "#00ff00";
 		selection = null;
 		valid = false; // Need to clear the old selection border
 	}
 	
 }, true);
   canvas.addEventListener('mousemove', function(e) {
-  	var mouse = getMouse(e);
-  	if (dragging){
-  		var mouse = getMouse(e);
+	var mouse = getMouse(e);
+	if (dragging){
+		var mouse = getMouse(e);
 	  // We don't want to drag the object by its top-left corner, we want to drag it
 	  // from where we clicked. Thats why we saved the offset and use it here
 	  selection.x = mouse.x - dragoffx;
@@ -197,7 +222,6 @@ canvas.addEventListener('selectstart', function(e) { e.preventDefault(); return 
 			drawing.Ex = mouse.x;
 			drawing.Ey = mouse.y;	
 		}else if(drawing.constructor.name.indexOf("Poligon") != -1){
-			console.log(drawing.points);
 			drawing.points[drawing.curPoint*2] = mouse.x;
 			drawing.points[drawing.curPoint*2+1] = mouse.y;
 		}else if(drawing.constructor.name.indexOf("Arc") != -1){
@@ -211,24 +235,47 @@ canvas.addEventListener('selectstart', function(e) { e.preventDefault(); return 
 			}else{
 				drawing.Sa = angleRadians;
 			}
+		}else if(drawing.constructor.name.indexOf("Bezier") != -1){
+			drawing.Ex= mouse.x;
+			drawing.Ey = mouse.y;
+			selection = drawing;
 		}
 		valid = false; // Something's drawing so we must redraw
 	}
 }, true);
   canvas.addEventListener('mouseup', function(e) {
-  	dragging = false;
+	dragging = false;
   }, true);
   // double click for making new shapes
   canvas.addEventListener('dblclick', function(e) {
-  	selection =null;
-  	var mouse = getMouse(e);
-  	newShape = createShape(mouse.x, mouse.y, 20, 20, '#FF00FF');
-  	if(newShape != undefined){
+	selection =null;
+	var mouse = getMouse(e);
+	newShape = createShape(mouse.x, mouse.y, 20, 20, '#FF00FF');
+	if(newShape != undefined){
 	  addShape(newShape);//new Shape(mouse.x - 10, mouse.y - 10, 20, 20, 'rgba(0,255,0,.6)')  
 	}
 }, true);
 
-  init();
+window.addEventListener("keyup", keyUpHandler, true);
+
+function keyUpHandler(event) {
+	var letters = "abcdefghijklmnopqrstuvwxyz";
+	var key = event.keyCode;
+	if ((key > 64 && key < 91)|| (key == 8))  {
+		if(selection != null && selection.constructor.name == "Text"){
+			if(key == 8){
+				selection.text = selection.text.slice(0,-1);
+				valid = false;
+			}else{
+				var letter = letters.substring(key - 64, key - 65);
+				selection.text += letter;
+				valid = false;
+			}
+		}
+	}
+}
+
+init();
 
   function init() {
   //addShape(new Point(400,400)); // The default is gray
