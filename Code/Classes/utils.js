@@ -75,6 +75,14 @@ function selectMode(which){
 			curMode = "text";
 		}else if(which === "eraser"){
 			curMode = "eraser";
+		}else if(which === "transform"){
+			curMode = "transform";
+		}else if(which === "scale"){
+			curMode = "scale";
+		}else if(which === "rotate"){
+			curMode = "rotate";
+		}else if(which === "mirror"){
+			curMode = "mirror";
 		}else{
 
 		}

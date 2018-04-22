@@ -9,8 +9,10 @@ function Text(x,y,text,color,font) {
 // Draws this shape to a given context
 Text.prototype.draw = function(ctx) {
 	ctx.fillStyle = this.color;
+	ctx.beginPath();
 	ctx.font = this.font;
 	ctx.fillText(this.text, this.x, this.y);
+	ctx.closePath();
 }
 // Determine if a text is inside the mouse's bounds
 Text.prototype.contains = function(mx, my, tol) {
@@ -18,3 +20,21 @@ Text.prototype.contains = function(mx, my, tol) {
 	// the shape's X and (X + Width) and its Y and (Y + Height)
 	return  ((mx+tol > this.x)||(mx-tol > this.x)) && ((mx-tol <= this.x)||(mx+tol <= this.x)) && ((my+tol > this.y)||(my-tol > this.y)) && ((my-tol <= this.y)||(my+tol <= this.y));
 }
+
+Text.prototype.transform = function(mx,my){
+	return true;
+}
+
+Text.prototype.scale = function(mx,my){
+	return true
+}
+
+Text.prototype.rotate = function(mx,my){
+	return true
+}
+
+Text.prototype.mirror = function(mx,my){
+	return true
+}
+
+Text.prototype.highlight = function(ctx){}

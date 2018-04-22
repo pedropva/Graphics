@@ -8,11 +8,12 @@ function Bezier(Sx,Sy,C1x,C1y,C2x,C2y,Ex,Ey,color) {//C1 and C2: Control point 1
 	this.Ex = Ex || 400;
 	this.Ey = Ey || 300;
 	this.color = color || '#AAAAAA';
+	this.curPoint=1;
 }
 
 // Draws this shape to a given context
 Bezier.prototype.draw = function(ctx) {
-	ctx.strokeStyle== this.color;
+	ctx.strokeStyle= this.color;
 	ctx.beginPath();
 	ctx.moveTo(this.Sx,this.Sy);
 	ctx.bezierCurveTo(this.C1x,this.C1y,this.C2x,this.C2y,this.Ex,this.Ey);
@@ -23,6 +24,7 @@ Bezier.prototype.draw = function(ctx) {
 Bezier.prototype.contains = function(mx, my, tol) {
 	// All we have to do is make sure the Mouse X,Y fall in the area between
 	// the shape's X and (X + Width) and its Y and (Y + Height)
+	/*
 	var biggestX;
 	var smallestX;
 	var biggestY;
@@ -41,6 +43,73 @@ Bezier.prototype.contains = function(mx, my, tol) {
 		biggestY = this.Ey;
 		smallestY = this.Sy;
 	}
-	return  (mx+tol > smallestX) && (mx-tol <= biggestX) && (my+tol > smallestY) && (my-tol <= biggestY);
-	//return  (mx+tol > 100) && (mx-tol <= 400) && (my+tol > 100) && (my-tol <= 400);
+	return  (mx > smallestX) && (mx <= biggestX) && (my > smallestY) && (my <= biggestY);
+	*/
+	var bbox = calculateBoundingBox(this.Sx,this.Sy,this.C1x,this.C1y,this.C2x,this.C2y,this.Ex,this.Ey);
+	return (mx > bbox.x) && (mx < bbox.x+bbox.width) && (my > bbox.y) && (my < bbox.y+bbox.height)
+}
+
+function calculateBoundingBox(ax, ay, bx, by, cx, cy, dx, dy)	{
+    var px, py, qx, qy, rx, ry, sx, sy, tx, ty;
+    var tobx, toby, tocx, tocy, todx, tody, toqx, toqy, torx, tory, totx, toty;
+    var x, y, minx, miny, maxx, maxy;
+    
+    minx = miny = Number.POSITIVE_INFINITY;
+    maxx = maxy = Number.NEGATIVE_INFINITY;
+    
+    tobx = bx - ax;  toby = by - ay;  
+    tocx = cx - bx;  tocy = cy - by;
+    todx = dx - cx;  tody = dy - cy;
+    var step = 1/40;
+    for(var d=0; d<1.001; d+=step){
+        px = ax +d*tobx;  py = ay +d*toby;
+        qx = bx +d*tocx;  qy = by +d*tocy;
+        rx = cx +d*todx;  ry = cy +d*tody;
+        toqx = qx - px;      toqy = qy - py;
+        torx = rx - qx;      tory = ry - qy;
+        
+        sx = px +d*toqx;  sy = py +d*toqy;
+        tx = qx +d*torx;  ty = qy +d*tory;
+        totx = tx - sx;   toty = ty - sy;
+
+        x = sx + d*totx;  y = sy + d*toty;
+        
+        minx = Math.min(minx, x); miny = Math.min(miny, y);
+        maxx = Math.max(maxx, x); maxy = Math.max(maxy, y);
+    }        
+    return {x:minx, y:miny, width:maxx-minx, height:maxy-miny};
+}
+
+
+Bezier.prototype.transform = function(mx,my){
+	return true;
+}
+
+Bezier.prototype.scale = function(mx,my){
+	return true
+}
+
+Bezier.prototype.rotate = function(mx,my){
+	return true
+}
+
+Bezier.prototype.mirror = function(mx,my){
+	return true
+}
+
+
+Bezier.prototype.highlight = function(ctx){
+	var aux = ctx.strokeStyle;
+	var aux2 = ctx.lineWidth;
+	ctx.strokeStyle = selectionColor;
+	ctx.lineWidth = selectionWidth;
+	ctx.beginPath();
+	ctx.moveTo(selection.Sx, selection.Sy);
+	ctx.lineTo(selection.C1x, selection.C1y);
+	ctx.moveTo(selection.Ex, selection.Ey);
+	ctx.lineTo(selection.C2x, selection.C2y);
+	ctx.closePath();
+	ctx.stroke();
+	ctx.strokeStyle = aux;
+	ctx.lineWidth = aux2;
 }

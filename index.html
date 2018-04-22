@@ -5,22 +5,29 @@
 	</head>
 	<body>
 		<div id="paint">
-			<div id="canvas">
-				<canvas id="myCanvas" width="500" height="500" style="border:1px solid #000000;">
-				Your browser does not support the HTML5 canvas tag.
-				</canvas>
+				<div id="canvas">
+					<canvas id="myCanvas" width="500" height="500" style="border:1px solid #000000;">
+					Your browser does not support the HTML5 canvas tag.
+					</canvas>
+				</div>
+			<div id="toolbar">
+				<button src="Icons/Point2.png" alt="Point" id="Point" onclick="selectMode('point')">
+				<button src="Icons/Line2.png" alt="Line" id="Line" onclick="selectMode('line')">
+				<button src="Icons/Poligon2.png" alt="Poligon" id="Poligon" onclick="selectMode('poligon')">
+				<button src="Icons/Arc2.png" alt="Arc" id="Arc" onclick="selectMode('arc')">
+				<button src="Icons/Bezier2.png" alt="Bezier" id="Bezier" onclick="selectMode('bezier')">
+				<button src="Icons/Text2.png" alt="Text" id="Text" onclick="selectMode('text')">
+				<button alt="Eraser" id="Eraser" onclick="selectMode('eraser')">
+				<button  alt="transform" id="transform" onclick="selectMode('transform')">Transform</button>
+				<button  alt="scale" id="scale" onclick="selectMode('scale')">Scale</button>
+				<button  alt="rotate" id="rotate" onclick="selectMode('rotate')">Rotate</button>
+				<button  alt="mirror" id="mirror" onclick="selectMode('mirror')">Mirror</button>
 			</div>
-		<div id="toolbar">
-			<button src="Icons/Point2.png" alt="Point" id="Point" onclick="selectMode('point')">
-			<button src="Icons/Line2.png" alt="Line" id="Line" onclick="selectMode('line')">
-			<button src="Icons/Poligon2.png" alt="Poligon" id="Poligon" onclick="selectMode('poligon')">
-			<button src="Icons/Arc2.png" alt="Arc" id="Arc" onclick="selectMode('arc')">
-			<button src="Icons/Bezier2.png" alt="Bezier" id="Bezier" onclick="selectMode('bezier')">
-			<button src="Icons/Text2.png" alt="Text" id="Text" onclick="selectMode('text')">
-			<button src="Icons/Eraser.png" alt="Eraser" id="Eraser" onclick="selectMode('eraser')">
 		</div>
-		</div>
-		
+		Left Click to select</br>
+		Double Click to create</br>
+		Middle Click to finish</br>
+		Right Click to edit
 		<script type="text/javascript" src="Code/jquery-3.3.1.min.js"></script>
 		<script type="text/javascript" src="Code/Classes/utils.js"></script>
 		<script type="text/javascript" src="Code/Classes/point.js"></script>
