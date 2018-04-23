@@ -25,6 +25,7 @@ var dragging = false; // Keep track of when we are dragging
 var selection = null;
 var operationPoint = null;
 var operationLine = null;
+var previousPoint = new Point(0,0);
 var previousColor = "#000000";
 ctx.strokeStyle = "#000000";
 ctx.fillStyle = "#000000";
@@ -48,9 +49,9 @@ function clear() {
 // While draw is called as often as the INTERVAL variable demands,
 // It only ever does something if the canvas gets invalidated by our code
 function draw() {
-  console.log(shapes);
   // if our state is invalid, redraw and validate!
 	if (!valid) {
+		//console.log(shapes);
 		clear();
 
 		// ** Add stuff you want drawn in the background all the time here **
@@ -188,8 +189,8 @@ canvas.addEventListener('selectstart', function(e) { e.preventDefault(); return 
 				var mySel = shapes[i];
 				// Keep track of where in the object we clicked
 				// so we can move it smoothly (see mousemove)
-				dragoffx = mx - mySel.x;
-				dragoffy = my - mySel.y;
+				//dragoffx = mx - mySel.x;
+				//dragoffy = my - mySel.y;
 				dragging = true;
 				selection = mySel;
 				if(selection.color.indexOf("#FF0000") == -1){
@@ -230,17 +231,22 @@ canvas.addEventListener('selectstart', function(e) { e.preventDefault(); return 
 		// We don't want to drag the object by its top-left corner, we want to drag it
 		// from where we clicked. Thats why we saved the offset and use it here
 		if(curMode === "transform"){
-			selection.transform(mouse.x - dragoffx,mouse.y - dragoffy);	
-			operationLine = new Line(operationPoint,new Point(mouse.x,mouse.y));
+			selection.transform(mouse.x - dragoffx,mouse.y - dragoffy);			
 		}else if(curMode === "scale"){
-			selection.scale(mouse.x - dragoffx,mouse.y - dragoffy);	
+				selection.scale(mouse.x - dragoffx,mouse.y - dragoffy);	
 		}else if(curMode === "rotate"){
-			selection.rotate(mouse.x - dragoffx,mouse.y - dragoffy);	
+			var a = mouse.x - operationPoint.x;
+			var b = mouse.y - operationPoint.y;
+			var angleRadians = Math.atan2(b,a);
+			selection.rotate(operationPoint.x, operationPoint.y ,angleRadians);	
 		}else if(curMode === "mirror"){
 			selection.mirror(mouse.x - dragoffx,mouse.y - dragoffy);	
 		}else{
 
 		}
+		previousPoint.x = mouse.x;
+		previousPoint.y = mouse.y;
+		operationLine = new Line(operationPoint,new Point(mouse.x,mouse.y));
 		valid = false; // Something's dragging so we must redraw
 	}
 	if(drawing != null){
@@ -318,14 +324,35 @@ function keyPressHandler(event) {
 	}
 }
 
-init();
-
-  function init() {
-  //addShape(new Point(400,400)); // The default is gray
-  //addShape(new Line(0,0,100,300,"#FF0000"));
-  //addShape(new Poligon([200,200,200,300,300,300,300,200],"#00FF00"));
-  //addShape(new Arc(90,50,50,2,1,"#0000FF"));
-  //addShape(new Bezier(180,140,100,100,200,300,400,300,"#FF0000" ));
-  //addShape(new Text(10,50,"ola mundo","#FF00FF"));
-  //console.log(shapes);
+function supports_html5_storage() {
+  try {
+    return 'localStorage' in window && window['localStorage'] !== null;
+  } catch (e) {
+    return false;
+  }
+}
+function saveCanvas(){
+	//http://diveintohtml5.info/storage.html
+	//save the data to local storage
+	if(supports_html5_storage){
+		console.log(shapes);
+		for(var y=0;y<shapes.length();y++){
+			localStorage.setItem("shapes:"+shapes[y].constructor.name+":"+y, JSON.stringify(shapes));		
+		}
+	}else{
+		alert("This browser does not support Local Storage!");
+	}
+}
+function loadCanvas(){
+	//try to load the data
+	if(supports_html5_storage){
+		shapes = localStorage.getItem("shapes");
+		for(var y=0;y<string_shapes.length();y++){
+			 parseInt(localStorage["halma.piece." + y + ".row"]);
+		}
+		//if the data is empty set the data
+		if(!string_shapes) shapes = []
+	}else{
+		alert("This browser does not support Local Storage!");
+	}
 }

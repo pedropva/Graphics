@@ -9,7 +9,22 @@ function drawLine(Sx,Sy,Ex,Ey){//starting x, starting y, ending x, ending y
 	ctx.lineTo(Ex, Ey);	
 	ctx.closePath();
 }
-
+function multMatriz(mat1, mat2){
+	var i, j, k, s;
+	var matRes = [];
+	for(i = 0; i < mat1.length; i++){
+		var res = [];
+		for(j = 0; j < mat2[0].length; j++){
+			s = 0;
+			for(k = 0; k < mat2.length; k++){
+    			s += mat1[i][k] * mat2[k][j];
+			}
+    		res.push(s);
+		}
+		matRes.push(res);
+	}
+	return matRes;
+}
 function drawPolygon(points,length){//points is a array with the sequence of points to close the polygon
 	for (var i = 0; i <= parseInt(length)/2; i=i+2) {
 		drawLine(points[i],points[i+1],points[i+2],points[i+3]);

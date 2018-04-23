@@ -35,7 +35,8 @@ Arc.prototype.transform = function(mx,my){
 }
 
 Arc.prototype.scale = function(mx,my){
-	return true
+	rate = mx/(canvas.width/2);
+	this.R *= rate;
 }
 
 Arc.prototype.rotate = function(mx,my){
