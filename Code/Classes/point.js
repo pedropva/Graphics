@@ -20,6 +20,17 @@ Point.prototype.contains = function(mx, my, tol) {
 	return  (this.x < mx+tol && this.x >mx-tol && this.y < my+tol && this.y > my-tol);
 }
 Point.prototype.transform = function(mx,my){
+	/*
+	var p0 = [];
+	var mat = [[1, 0, this.x+mx],[0, 1, this.y+my],[0, 0, 1]];
+	p0.push([this.x]);
+	p0.push([this.y]);
+	p0.push([1]);
+	p0 = multMatriz(mat,p0);
+	this.x = p0[0][0];
+	this.y = p0[1][0];
+	console.log(this.x +","+ this.y);
+	*/
 	this.x = mx;
 	this.y = my;
 }

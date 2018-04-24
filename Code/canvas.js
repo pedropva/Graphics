@@ -74,6 +74,7 @@ function draw() {
 					var previous = ctx.strokeStyle;
 					var previous2 = ctx.fillStyle;
 					shapes[i].draw(ctx);		
+					//console.log("desenhei: " + shapes[i].constructor.name);
 					ctx.stroke();
 					ctx.strokeStyle = previous;
 					ctx.fillStyle = previous2;
@@ -230,23 +231,23 @@ canvas.addEventListener('selectstart', function(e) { e.preventDefault(); return 
 		var mouse = getMouse(e);
 		// We don't want to drag the object by its top-left corner, we want to drag it
 		// from where we clicked. Thats why we saved the offset and use it here
+		operationLine = new Line(operationPoint,new Point(mouse.x,mouse.y));
 		if(curMode === "transform"){
 			selection.transform(mouse.x - dragoffx,mouse.y - dragoffy);			
 		}else if(curMode === "scale"){
-				selection.scale(mouse.x - dragoffx,mouse.y - dragoffy);	
+			selection.scale(mouse.x - dragoffx,mouse.y - dragoffy);	
 		}else if(curMode === "rotate"){
 			var a = mouse.x - operationPoint.x;
 			var b = mouse.y - operationPoint.y;
-			var angleRadians = Math.atan2(b,a);
-			selection.rotate(operationPoint.x, operationPoint.y ,angleRadians);	
+			selection.rotate(operationPoint.x, operationPoint.y);	
 		}else if(curMode === "mirror"){
 			selection.mirror(mouse.x - dragoffx,mouse.y - dragoffy);	
 		}else{
-
+			operationLine = null;
 		}
 		previousPoint.x = mouse.x;
 		previousPoint.y = mouse.y;
-		operationLine = new Line(operationPoint,new Point(mouse.x,mouse.y));
+		
 		valid = false; // Something's dragging so we must redraw
 	}
 	if(drawing != null){
@@ -346,15 +347,19 @@ function saveCanvas(){
 			}else if(shapes[y].constructor.name.indexOf("Poligon") != -1){
 				var auxSave = "";
 				for(var z=0;z<shapes[y].points.length;z++){
-					auxSave += ":"+shapes[y].points[z];
+					if(auxSave === ""){
+						auxSave += shapes[y].points[z].x+":"+shapes[y].points[z].y;
+					}else{
+						auxSave += ":"+shapes[y].points[z].x+":"+shapes[y].points[z].y;
+					}
 				}
-				localStorage.setItem(y+shapes[y].constructor.name+":"+shapes[y].color,auxSave);			
+				localStorage.setItem(y,shapes[y].constructor.name +":"+ auxSave+":"+shapes[y].color);			
 			}else if(shapes[y].constructor.name.indexOf("Bezier") != -1){
 				localStorage.setItem(y,shapes[y].constructor.name+":"+shapes[y].Sx+":"+shapes[y].Sy+":"+shapes[y].C1x+":"+shapes[y].C1y+":"+shapes[y].C2x+":"+shapes[y].C2y+":"+shapes[y].Ex+":"+shapes[y].Ey+":"+shapes[y].color);			
 			}else if(shapes[y].constructor.name.indexOf("Arc") != -1){
 				localStorage.setItem(y,shapes[y].constructor.name+":"+shapes[y].Cx+":"+shapes[y].Cy+":"+shapes[y].R+":"+shapes[y].Sa+":"+shapes[y].Ea+":"+shapes[y].color);			
 			}else if(shapes[y].constructor.name.indexOf("Text") != -1){
-				localStorage.setItem(y,shapes[y].constructor.name+":"+shapes[y].x+":"+shapes[y].y+":"+shapes[y].text+":"+shapes[y].font+":"+shapes[y].color);			
+				localStorage.setItem(y,shapes[y].constructor.name+":"+shapes[y].x+":"+shapes[y].y+":"+shapes[y].text+":"+shapes[y].color+":"+shapes[y].font);			
 			}
 		}
 	}else{
@@ -365,13 +370,35 @@ function loadCanvas(){
 	//try to load the data
 	if(supports_html5_storage){
 		var shapes_length = parseInt(localStorage.getItem("shapes_lenght"));
-		for(var y=0;y<shapes_length;y++){
-			 var local_shape = localStorage.getItem(y);
-			 local_shape = local_shape.split(":");
-			 console.log(local_shape);
-		}
 		//if the data is empty set the data
-		if(shapes_lenght <= 0) shapes = []
+		if(shapes_length <= 0){
+			shapes = []
+			return;
+		}
+		for(var y=0;y<shapes_length;y++){
+			var local_shape = localStorage.getItem(y);
+			local_shape = local_shape.split(":");
+			console.log(local_shape);
+			if(local_shape[0].indexOf("Point") != -1){				
+				shapes.push(new Point(parseInt(local_shape[1]),parseInt(local_shape[2]),5,5,local_shape[3])); 
+			}else if(local_shape[0].indexOf("Line") != -1){
+				shapes.push(new Line(new Point(parseInt(local_shape[1]),parseInt(local_shape[2])),new Point(parseInt(local_shape[3]),parseInt(local_shape[4])),local_shape[5])); 
+			}else if(local_shape[0].indexOf("Poligon") != -1){
+				var auxLoad = new Poligon([],local_shape[local_shape.length-1]);
+				for(var z=1;z<local_shape.length-1;z= z+2){
+					auxLoad.points.push(new Point(parseInt(local_shape[z]),parseInt(local_shape[z+1]))); 
+				}
+				shapes.push(auxLoad);
+			}else if(local_shape[0].indexOf("Bezier") != -1){
+				shapes.push(new Bezier(parseInt(local_shape[1]),parseInt(local_shape[2]),parseInt(local_shape[3]),parseInt(local_shape[4]),parseInt(local_shape[5]),parseInt(local_shape[6]),parseInt(local_shape[7]),parseInt(local_shape[8]),local_shape[9])); 
+			}else if(local_shape[0].indexOf("Arc") != -1){
+				shapes.push(new Arc(parseInt(local_shape[1]),parseInt(local_shape[2]),parseInt(local_shape[3]),parseInt(local_shape[4]),parseInt(local_shape[5]),local_shape[6])); 
+			}else if(local_shape[0].indexOf("Text") != -1){
+				shapes.push(new Text(parseInt(local_shape[1]),parseInt(local_shape[2]),local_shape[3],local_shape[4],local_shape[5])); 
+			}
+		}
+		valid = false;
+		console.log(shapes);
 	}else{
 		alert("This browser does not support Local Storage!");
 	}

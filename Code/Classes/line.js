@@ -61,49 +61,48 @@ Line.prototype.scale = function(mx,my){
 	}
 }
 
-Line.prototype.rotate = function(mx,my,angle){
-	if(mx > 0){
-		angle = 0.1;
-	}else{
-		angle = -0.1;
-	}
+Line.prototype.rotate = function(mx,my){
+	angle = 0.1;
 	var m1 = [];
-	var cos = Math.cos(angle*180);
-	var sin = Math.sin(angle*180);
+	var cos = Math.cos(angle);	
+	var sin = Math.sin(angle);
+	var dist1 = 0;
+	var dist2 = 0;
+
 	var ptList = [this.S,this.E];
 	var aux1 = new Point(this.S.x,this.S.y);
 	var aux2 = new Point(this.E.x,this.E.y);
-	var dist1 = 0;
-	var dist2 = 0;
+	
+
 	var m2 = [[cos, -sin, 0],
 		    [sin, cos, 0],
 		    [0,0,1]];
+
 	for (var i = 0 ; i < ptList.length;i++){
 		m1 = [];
-		console.log(ptList[i]);
-		console.log(mx+","+my);
-		dist1 = mx-ptList[i].x;
-		dist2 = my-ptList[i].y;
-		ptList[i].x -= dist1;//transladando pro centro
-		ptList[i].y -= dist2;
-		console.log(ptList[i]);
+		console.log("Antes X: "+ptList[i].x +" Y: "+ ptList[i].y);
+		dist1 = ptList[i].x - mx;
+		dist2 = ptList[i].y - my;
+		ptList[i].x -= mx;//transladando o ponto rotacionado pro centro
+		ptList[i].y -= my;
 		m1.push([ptList[i].x]);
 		m1.push([ptList[i].y]);
 		m1.push([1]);
 		m1 = multMatriz(m2, m1);
-		ptList[i].x = m1[0];
-		ptList[i].y = m1[1];
-		ptList[i].x += dist1;//transladando de volta
-		ptList[i].y += dist2;
+		ptList[i].x = m1[0][0];
+		ptList[i].y = m1[1][0];
+		ptList[i].x += mx;//transladando de o ponto de rotação de volta
+		ptList[i].y += my;
+		
+		console.log("Depois X: "+ptList[i].x +" Y: "+ ptList[i].y);
 	}
-	if((this.S.x > 1 && this.S.y > 1 && this.E.x > 1 && this.E.y > 1)&&(this.S.x < canvas.width-1 && this.S.y < canvas.width-1 && this.E.x < canvas.width-1 && this.E.y < canvas.width-1)){
-
-	}else{
-		console.log("transformacao proibida! resultado fora da tela");
+	if(!((this.S.x > 1 && this.S.y > 1 && this.E.x > 1 && this.E.y > 1)&&(this.S.x < canvas.width-1 && this.S.y < canvas.height-1 && this.E.x < canvas.width-1 && this.E.y < canvas.height-1))){
+		console.log("transformacao proibida! resultado fora da tela! Tamanho da tela: "+canvas.width +"x"+ canvas.height);
 		this.S.x = aux1.x;
 		this.S.y = aux1.y;
-		this.E.x = aux1.x;
-		this.E.y = aux1.y;
+		this.E.x = aux2.x;
+		this.E.y = aux2.y;
+	}else{
 	}
 }
 
