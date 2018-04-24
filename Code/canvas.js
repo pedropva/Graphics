@@ -336,8 +336,26 @@ function saveCanvas(){
 	//save the data to local storage
 	if(supports_html5_storage){
 		console.log(shapes);
-		for(var y=0;y<shapes.length();y++){
-			localStorage.setItem("shapes:"+shapes[y].constructor.name+":"+y, JSON.stringify(shapes));		
+		localStorage.setItem("shapes_lenght",shapes.length);			
+		for(var y=0;y<shapes.length;y++){
+			if(shapes[y].constructor.name.indexOf("Point") != -1){
+				//localStorage.setItem(shapes[y].constructor.name+":"+y+":"+shapes[y].x, JSON.stringify(shapes[y].x));		
+				localStorage.setItem(y,shapes[y].constructor.name+":"+shapes[y].x+":"+shapes[y].y+":"+shapes[y].color);			
+			}else if(shapes[y].constructor.name.indexOf("Line") != -1){
+				localStorage.setItem(y,shapes[y].constructor.name+":"+shapes[y].S.x+":"+shapes[y].S.y+":"+shapes[y].E.x+":"+shapes[y].E.y+":"+shapes[y].color);			
+			}else if(shapes[y].constructor.name.indexOf("Poligon") != -1){
+				var auxSave = "";
+				for(var z=0;z<shapes[y].points.length;z++){
+					auxSave += ":"+shapes[y].points[z];
+				}
+				localStorage.setItem(y+shapes[y].constructor.name+":"+shapes[y].color,auxSave);			
+			}else if(shapes[y].constructor.name.indexOf("Bezier") != -1){
+				localStorage.setItem(y,shapes[y].constructor.name+":"+shapes[y].Sx+":"+shapes[y].Sy+":"+shapes[y].C1x+":"+shapes[y].C1y+":"+shapes[y].C2x+":"+shapes[y].C2y+":"+shapes[y].Ex+":"+shapes[y].Ey+":"+shapes[y].color);			
+			}else if(shapes[y].constructor.name.indexOf("Arc") != -1){
+				localStorage.setItem(y,shapes[y].constructor.name+":"+shapes[y].Cx+":"+shapes[y].Cy+":"+shapes[y].R+":"+shapes[y].Sa+":"+shapes[y].Ea+":"+shapes[y].color);			
+			}else if(shapes[y].constructor.name.indexOf("Text") != -1){
+				localStorage.setItem(y,shapes[y].constructor.name+":"+shapes[y].x+":"+shapes[y].y+":"+shapes[y].text+":"+shapes[y].font+":"+shapes[y].color);			
+			}
 		}
 	}else{
 		alert("This browser does not support Local Storage!");
@@ -346,12 +364,14 @@ function saveCanvas(){
 function loadCanvas(){
 	//try to load the data
 	if(supports_html5_storage){
-		shapes = localStorage.getItem("shapes");
-		for(var y=0;y<string_shapes.length();y++){
-			 parseInt(localStorage["halma.piece." + y + ".row"]);
+		var shapes_length = parseInt(localStorage.getItem("shapes_lenght"));
+		for(var y=0;y<shapes_length;y++){
+			 var local_shape = localStorage.getItem(y);
+			 local_shape = local_shape.split(":");
+			 console.log(local_shape);
 		}
 		//if the data is empty set the data
-		if(!string_shapes) shapes = []
+		if(shapes_lenght <= 0) shapes = []
 	}else{
 		alert("This browser does not support Local Storage!");
 	}

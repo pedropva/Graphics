@@ -73,6 +73,8 @@ Line.prototype.rotate = function(mx,my,angle){
 	var ptList = [this.S,this.E];
 	var aux1 = new Point(this.S.x,this.S.y);
 	var aux2 = new Point(this.E.x,this.E.y);
+	var dist1 = 0;
+	var dist2 = 0;
 	var m2 = [[cos, -sin, 0],
 		    [sin, cos, 0],
 		    [0,0,1]];
@@ -80,8 +82,10 @@ Line.prototype.rotate = function(mx,my,angle){
 		m1 = [];
 		console.log(ptList[i]);
 		console.log(mx+","+my);
-		ptList[i].x -= mx;//transladando pro centro
-		ptList[i].y -= my;
+		dist1 = mx-ptList[i].x;
+		dist2 = my-ptList[i].y;
+		ptList[i].x -= dist1;//transladando pro centro
+		ptList[i].y -= dist2;
 		console.log(ptList[i]);
 		m1.push([ptList[i].x]);
 		m1.push([ptList[i].y]);
@@ -89,8 +93,8 @@ Line.prototype.rotate = function(mx,my,angle){
 		m1 = multMatriz(m2, m1);
 		ptList[i].x = m1[0];
 		ptList[i].y = m1[1];
-		ptList[i].x += mx;//transladando de volta
-		ptList[i].y += my;
+		ptList[i].x += dist1;//transladando de volta
+		ptList[i].y += dist2;
 	}
 	if((this.S.x > 1 && this.S.y > 1 && this.E.x > 1 && this.E.y > 1)&&(this.S.x < canvas.width-1 && this.S.y < canvas.width-1 && this.E.x < canvas.width-1 && this.E.y < canvas.width-1)){
 
