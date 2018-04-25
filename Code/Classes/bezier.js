@@ -21,7 +21,7 @@ Bezier.prototype.draw = function(ctx) {
 }
 
 // Determine if a bezier curve is inside the mouse's bounds
-Bezier.prototype.contains = function(mx, my, tol) {
+Bezier.prototype.contains = function(mouse, tol) {
 	// All we have to do is make sure the Mouse X,Y fall in the area between
 	// the shape's X and (X + Width) and its Y and (Y + Height)
 	/*
@@ -43,10 +43,10 @@ Bezier.prototype.contains = function(mx, my, tol) {
 		biggestY = this.Ey;
 		smallestY = this.Sy;
 	}
-	return  (mx > smallestX) && (mx <= biggestX) && (my > smallestY) && (my <= biggestY);
+	return  (mouse.x > smallestX) && (mouse.x <= biggestX) && (mouse.y > smallestY) && (mouse.y <= biggestY);
 	*/
 	var bbox = calculateBoundingBox(this.Sx,this.Sy,this.C1x,this.C1y,this.C2x,this.C2y,this.Ex,this.Ey);
-	return (mx > bbox.x) && (mx < bbox.x+bbox.width) && (my > bbox.y) && (my < bbox.y+bbox.height)
+	return (mouse.x > bbox.x) && (mouse.x < bbox.x+bbox.width) && (mouse.y > bbox.y) && (mouse.y < bbox.y+bbox.height)
 }
 
 function calculateBoundingBox(ax, ay, bx, by, cx, cy, dx, dy)	{
@@ -81,19 +81,19 @@ function calculateBoundingBox(ax, ay, bx, by, cx, cy, dx, dy)	{
 }
 
 
-Bezier.prototype.transform = function(mx,my){
+Bezier.prototype.translate = function(mouse){
 	return true;
 }
 
-Bezier.prototype.scale = function(mx,my){
+Bezier.prototype.scale = function(mouse){
 	return true
 }
 
-Bezier.prototype.rotate = function(mx,my){
+Bezier.prototype.rotate = function(mouse){
 	return true
 }
 
-Bezier.prototype.mirror = function(mx,my){
+Bezier.prototype.mirror = function(mouse){
 	return true
 }
 

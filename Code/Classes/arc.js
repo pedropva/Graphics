@@ -20,31 +20,41 @@ Arc.prototype.draw = function(ctx) {
 }
 
 // Determine if a arc is inside the mouse's bounds
-Arc.prototype.contains = function(mx, my, tol) {
+Arc.prototype.contains = function(mouse, tol) {
 	// All we have to do is make sure the Mouse X,Y fall in the area between
 	// the shape's X and (X + Width) and its Y and (Y + Height)
-	var a = mx - this.Cx;
-	var b = my - this.Cy;
+	var a = mouse.x - this.Cx;
+	var b = mouse.y - this.Cy;
 	var r = Math.sqrt(a*a + b*b);
 	return  (r < this.R);
 	//Math.sqrt((x1-x0)*(x1-x0) + (y1-y0)*(y1-y0)) < r
 }
 
-Arc.prototype.transform = function(mx,my){
+Arc.prototype.translate = function(mouse){
 	return true;
 }
 
-Arc.prototype.scale = function(mx,my){
-	rate = mx/(canvas.width/2);
+Arc.prototype.scale = function(mouse){
+	rate = mouse.x/(canvas.width/2);
 	this.R *= rate;
 }
 
-Arc.prototype.rotate = function(mx,my){
+Arc.prototype.rotate = function(mouse){
 	return true
 }
 
-Arc.prototype.mirror = function(mx,my){
+Arc.prototype.mirror = function(mouse){
 	return true
 }
-
+Arc.prototype.invertedAngle = function(ctx){
+	while(a < 0)
+    {
+      a += 2*Math.PI;
+    }
+    while(a > 2*Math.PI)
+    {
+      a -= 2*Math.PI;
+    }
+    return a;
+}
 Arc.prototype.highlight = function(ctx){}

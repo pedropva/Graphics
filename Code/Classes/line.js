@@ -15,11 +15,11 @@ Line.prototype.draw = function(ctx) {
 }
 
 // Determine if a line is inside the mouse's bounds
-Line.prototype.contains = function(mx, my, tol) {
+Line.prototype.contains = function(mouse, tol) {
 	var a = this.S.y - this.E.y;
 	var b = this.E.x - this.S.x;
 	var c = this.S.x*this.E.y - this.E.x*this.S.y;
-	var d = (a*mx + b*my + c)/Math.sqrt(a*a + b*b);
+	var d = (a*mouse.x + b*mouse.y + c)/Math.sqrt(a*a + b*b);
 
 	var biggestX;
 	var smallestX;
@@ -39,75 +39,61 @@ Line.prototype.contains = function(mx, my, tol) {
 		biggestY = this.E.y;
 		smallestY = this.S.y;
 	} 
-	 return (-tol <= d && d<= tol && mx > smallestX) && (mx <= biggestX) && (my > smallestY) && (my <= biggestY)
+	 return (-tol <= d && d<= tol && mouse.x > smallestX) && (mouse.x <= biggestX) && (mouse.y > smallestY) && (mouse.y <= biggestY)
 }
 
-Line.prototype.transform = function(mx,my){
-	var distX = this.S.x;
-	var distY = this.S.y;
-	this.S.transform(mx,my);
-	this.E.x += this.S.x - distX;
-	this.E.y += this.S.y - distY;
-}
-
-Line.prototype.scale = function(mx,my){
-	rate = mx/(canvas.width/1.5);
-	console.log(rate);
-	if((this.S.x*rate > 1 && this.S.y*rate > 1 && this.E.x*rate > 1 && this.E.y*rate > 1)&&(this.S.x*rate < canvas.width-1 && this.S.y*rate < canvas.width-1 && this.E.x*rate < canvas.width-1 && this.E.y*rate < canvas.width-1)){
-		this.S.x *= rate;
-		this.S.y *= rate;
-		this.E.x *= rate;
-		this.E.y *= rate;	
-	}
-}
-
-Line.prototype.rotate = function(mx,my){
-	angle = 0.1;
-	var m1 = [];
-	var cos = Math.cos(angle);	
-	var sin = Math.sin(angle);
-	var dist1 = 0;
-	var dist2 = 0;
-
+Line.prototype.translate = function(distanceX,distanceY){
 	var ptList = [this.S,this.E];
-	var aux1 = new Point(this.S.x,this.S.y);
-	var aux2 = new Point(this.E.x,this.E.y);
-	
-
-	var m2 = [[cos, -sin, 0],
-		    [sin, cos, 0],
-		    [0,0,1]];
-
 	for (var i = 0 ; i < ptList.length;i++){
-		m1 = [];
-		console.log("Antes X: "+ptList[i].x +" Y: "+ ptList[i].y);
-		dist1 = ptList[i].x - mx;
-		dist2 = ptList[i].y - my;
-		ptList[i].x -= mx;//transladando o ponto rotacionado pro centro
-		ptList[i].y -= my;
-		m1.push([ptList[i].x]);
-		m1.push([ptList[i].y]);
-		m1.push([1]);
-		m1 = multMatriz(m2, m1);
-		ptList[i].x = m1[0][0];
-		ptList[i].y = m1[1][0];
-		ptList[i].x += mx;//transladando de o ponto de rotação de volta
-		ptList[i].y += my;
-		
-		console.log("Depois X: "+ptList[i].x +" Y: "+ ptList[i].y);
-	}
-	if(!((this.S.x > 1 && this.S.y > 1 && this.E.x > 1 && this.E.y > 1)&&(this.S.x < canvas.width-1 && this.S.y < canvas.height-1 && this.E.x < canvas.width-1 && this.E.y < canvas.height-1))){
-		console.log("transformacao proibida! resultado fora da tela! Tamanho da tela: "+canvas.width +"x"+ canvas.height);
-		this.S.x = aux1.x;
-		this.S.y = aux1.y;
-		this.E.x = aux2.x;
-		this.E.y = aux2.y;
-	}else{
+		ptList[i].translate(distanceX,distanceY);
 	}
 }
 
-Line.prototype.mirror = function(mx,my){
+Line.prototype.scale = function(distanceX,distanceY,center){
+	var ptList = [this.S,this.E];
+	for (var i = 0 ; i < ptList.length;i++){
+    	ptList[i].scale(distanceX,distanceY,center);
+	}
+}
+
+Line.prototype.rotate = function(operationPoint,previousMouse,mouse){
+	var ptList = [this.S,this.E];
+	for (var i = 0 ; i < ptList.length;i++){
+		ptList[i].rotate(operationPoint,previousMouse,mouse);
+	}
+}
+
+Line.prototype.mirror = function(mouse){
 	return true
+}
+
+Line.prototype.isOnCanvas = function(){
+	var ptList = [this.S,this.E];
+	var pointsOnCanvas = 0;
+	for (var i = 0 ; i < ptList.length;i++){
+		if(ptList[i].isOnCanvas()){
+			pointsOnCanvas++;		
+		}
+	}
+	if(pointsOnCanvas == ptList.length){
+		return true;
+	}else{
+		return false;
+	}
+}
+
+Line.prototype.copy = function(){
+	return new Line(this.S.copy(),this.E.copy(),this.color);
+}
+
+Line.prototype.restore = function(a){
+	this.S = a.S;
+	this.E = a.E;
+	this.color = a.color;
+}
+
+Line.prototype.center = function(){
+	return new Point(this.S.x+this.E.x/2,this.S.y+this.E.y/2);
 }
 
 Line.prototype.highlight = function(ctx,selectionWidth){

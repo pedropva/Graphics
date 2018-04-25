@@ -76,31 +76,7 @@ function readTextFile(file)
     rawFile.send(null);
 }
 function selectMode(which){
-	if(which === "point"){
-			curMode = "point";
-		}else if(which === "line"){
-			curMode = "line";
-		}else if(which === "poligon"){
-			curMode = "poligon";
-		}else if(which === "arc"){
-			curMode = "arc";
-		}else if(which === "bezier"){
-			curMode = "bezier";
-		}else if(which === "text"){
-			curMode = "text";
-		}else if(which === "eraser"){
-			curMode = "eraser";
-		}else if(which === "transform"){
-			curMode = "transform";
-		}else if(which === "scale"){
-			curMode = "scale";
-		}else if(which === "rotate"){
-			curMode = "rotate";
-		}else if(which === "mirror"){
-			curMode = "mirror";
-		}else{
-
-		}
+	curMode = which;
 	console.log("Mode set:" + curMode);
 }
 function drawFromFile(data){

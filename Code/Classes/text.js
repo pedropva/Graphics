@@ -15,25 +15,25 @@ Text.prototype.draw = function(ctx) {
 	ctx.closePath();
 }
 // Determine if a text is inside the mouse's bounds
-Text.prototype.contains = function(mx, my, tol) {
+Text.prototype.contains = function(mouse, tol) {
 	// All we have to do is make sure the Mouse X,Y fall in the area between
 	// the shape's X and (X + Width) and its Y and (Y + Height)
-	return  ((mx+tol > this.x)||(mx-tol > this.x)) && ((mx-tol <= this.x)||(mx+tol <= this.x)) && ((my+tol > this.y)||(my-tol > this.y)) && ((my-tol <= this.y)||(my+tol <= this.y));
+	return  ((mouse.x+tol > this.x)||(mouse.x-tol > this.x)) && ((mouse.x-tol <= this.x)||(mouse.x+tol <= this.x)) && ((mouse.y+tol > this.y)||(mouse.y-tol > this.y)) && ((mouse.y-tol <= this.y)||(mouse.y+tol <= this.y));
 }
 
-Text.prototype.transform = function(mx,my){
+Text.prototype.transform = function(mouse){
 	return true;
 }
 
-Text.prototype.scale = function(mx,my){
+Text.prototype.scale = function(mouse){
 	return true
 }
 
-Text.prototype.rotate = function(mx,my){
+Text.prototype.rotate = function(mouse){
 	return true
 }
 
-Text.prototype.mirror = function(mx,my){
+Text.prototype.mirror = function(mouse){
 	return true
 }
 

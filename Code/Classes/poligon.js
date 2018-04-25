@@ -18,13 +18,13 @@ Poligon.prototype.draw = function(ctx) {
 }
 
 // Determine if a poligon is inside the mouse's bounds
-Poligon.prototype.contains = function(mx, my, tol) {
+Poligon.prototype.contains = function(mouse, tol) {
 	// All we have to do is make sure the Mouse X,Y fall in the area between
 	// the shape's X and (X + Width) and its Y and (Y + Height)
 	var cout = 0;
 	for (var i = 0;i<this.points.length;i++)
 	{
-		if(this.points[i].contains(mx,my,tol) == true)
+		if(this.points[i].contains(mouse.x,mouse.y,tol) == true)
 		{
 			return true;
 		}
@@ -50,9 +50,9 @@ Poligon.prototype.contains = function(mx, my, tol) {
 			y1 = this.points[i].y
 		}
 
-		if(my > y0 && my < y1 && (mx > x0 || mx > x1))
+		if(mouse.y > y0 && mouse.y < y1 && (mouse.x > x0 || mouse.x > x1))
 		{
-			if((mx < x0 && mx < x1))
+			if((mouse.x < x0 && mouse.x < x1))
 			{
 				cout += 1;
 			}
@@ -61,9 +61,9 @@ Poligon.prototype.contains = function(mx, my, tol) {
 				var xc = x0;
 				if(dx != 0)
 				{
-					xc += ( my - y0 ) * dx / ( y0 - y1 );
+					xc += ( mouse.y - y0 ) * dx / ( y0 - y1 );
 				}
-				if(mx > xc){
+				if(mouse.x > xc){
 					cout += 1
 				}
 			}
@@ -88,9 +88,9 @@ Poligon.prototype.contains = function(mx, my, tol) {
 			y1 = this.points[this.points.length-1].y
 		}
 
-		if(my > y0 && my < y1 && (mx > x0 || mx > x1))
+		if(mouse.y > y0 && mouse.y < y1 && (mouse.x > x0 || mouse.x > x1))
 		{
-			if((mx < x0 && mx < x1))
+			if((mouse.x < x0 && mouse.x < x1))
 			{
 				cout += 1;
 			}
@@ -99,9 +99,9 @@ Poligon.prototype.contains = function(mx, my, tol) {
 				var xc = x0;
 				if(dx != 0)
 				{
-					xc += ( my - y0 ) * dx / ( y0 - y1 );
+					xc += ( mouse.y - y0 ) * dx / ( y0 - y1 );
 				}
-				if(mx > xc){
+				if(mouse.x > xc){
 					cout += 1
 				}
 			}
@@ -117,19 +117,19 @@ Poligon.prototype.contains = function(mx, my, tol) {
 		return false;
 	}
 }
-Poligon.prototype.transform = function(mx,my){
+Poligon.prototype.translate = function(previousMouse,mouse){
 	return true;
 }
 
-Poligon.prototype.scale = function(mx,my){
+Poligon.prototype.scale = function(mouse){
 	return true
 }
 
-Poligon.prototype.rotate = function(mx,my){
+Poligon.prototype.rotate = function(operationPoint,previousMouse,mouse){
 	return true
 }
 
-Poligon.prototype.mirror = function(mx,my){
+Poligon.prototype.mirror = function(mouse){
 	return true
 }
 

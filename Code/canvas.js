@@ -16,10 +16,11 @@ var curMode = "none";
 var clicks =0;
 var startingX = 0;
 var startingY = 0;
-var drawing = null;//holds the id of the shape we're currently drawing
 var valid = false; // when set to true, the canvas will redraw everything
 var shapes = [];  // the collection of things to be drawn
 var dragging = false; // Keep track of when we are dragging
+var drawing = null;//holds the id of the shape we're currently drawing
+var mirrorwing = null;//holds the id of the shape we're currently mirrorwing
  // the current selected object.
  // In the future we could turn this into an array for multiple selection
 var selection = null;
@@ -41,7 +42,12 @@ function addShape(shape) {
 	shapes.push(shape);
 	valid = false;
 }
-
+function deleteShape(shape) {
+	var index = shapes.indexOf(shape);
+	if(index != -1){
+		shapes.splice(index, 1);
+	}
+}
 function clear() {
 	ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
@@ -70,7 +76,7 @@ function draw() {
 
 			if(shape != undefined){    
 				// We can skip the drawing of elements that have moved off the screen:
-				if (shape.x > canvas.width || shape.y > canvas.height ||shape.x + shape.w < 0 || shape.y + shape.h < 0) continue;
+				if (shape.x > canvas.width || shape.y > canvas.height ||shape.x + shape.w < 0 || shape.y + shape.h < 0) continue;//TODO use the test shape.isOnCanvas() to test this.
 					var previous = ctx.strokeStyle;
 					var previous2 = ctx.fillStyle;
 					shapes[i].draw(ctx);		
@@ -82,6 +88,7 @@ function draw() {
 			}
 		// draw selection
 		// right now this is just a stroke along the edge of the selected Shape
+		
 		if (selection != null) {
 			selection.highlight(ctx);
 		}
@@ -153,8 +160,23 @@ function createShape(x,y,w,h,color){
 		case "text":
 		drawing = new Text(x,y,"Hi",color);
 		return drawing;
+		case "mirror":
+		if(selection != null || mirrorwing != null){
+			if(mirrorwing == null && selection != null){
+				mirrorwing = selection;		
+			}
+			
+			if(drawing != null && drawing.constructor.name == "Line"){
+				return undefined;	
+			}		
+			drawing = new Line(new Point(x,y),new Point(x,y),color);
+			return drawing;
+		}else{
+			console.log(selection +" and "+ mirrorwing);
+			alert("please select a shape to mirror first!");
+		}
 		default:
-		  //?
+		  return undefined;
 		}
 	}
 
@@ -163,8 +185,6 @@ canvas.addEventListener('selectstart', function(e) { e.preventDefault(); return 
   // Up, down, and move are for dragging
   canvas.addEventListener('mousedown', function(e) {
 	var mouse = getMouse(e);
-	var mx = mouse.x;
-	var my = mouse.y;
 	var l = shapes.length;
 	/*
 	The value of which will be:
@@ -174,6 +194,12 @@ canvas.addEventListener('selectstart', function(e) { e.preventDefault(); return 
 	3 for the right button
 	*/
 	if(e.which == 2){
+		if(curMode.indexOf("mirror") != -1){
+			if(drawing != mirrorwing){
+				mirrorwing.mirror(drawing);// mirror the object and then delete the mirror line
+			}
+			deleteShape(drawing);
+		}
 		drawing = null;
 		operationPoint = null;
 		operationLine = null;
@@ -186,12 +212,12 @@ canvas.addEventListener('selectstart', function(e) { e.preventDefault(); return 
 	}
 	for (var i = l-1; i >= 0; i--) {
 		if(shapes[i] != undefined){
-			if (shapes[i].contains(mx, my,5)) {
+			if (shapes[i].contains(new Point(mouse.x,mouse.y),5)) {
 				var mySel = shapes[i];
 				// Keep track of where in the object we clicked
 				// so we can move it smoothly (see mousemove)
-				//dragoffx = mx - mySel.x;
-				//dragoffy = my - mySel.y;
+				//dragoffx = mouse.x - mySel.x;
+				//dragoffy = mouse.y - mySel.y;
 				dragging = true;
 				selection = mySel;
 				if(selection.color.indexOf("#FF0000") == -1){
@@ -202,13 +228,12 @@ canvas.addEventListener('selectstart', function(e) { e.preventDefault(); return 
 					drawing = selection;
 				}
 				if(curMode =="eraser"){
-					var index = shapes.indexOf(selection);
-					if(index != -1){
-						shapes.splice(index, 1);
-						selection = null;
-					}
-				}else if(curMode =="transform" || curMode =="scale" || curMode =="rotate" || curMode =="mirror"){
+					deleteShape(selection);
+					selection = null;
+				}else if(curMode =="translate" || curMode =="scale" || curMode =="rotate" || curMode =="mirror"){
 					operationPoint = new Point(mouse.x,mouse.y);
+					previousPoint.x = mouse.x;
+					previousPoint.y = mouse.y;
 				}
 				valid = false;
 				console.log(selection);
@@ -217,8 +242,8 @@ canvas.addEventListener('selectstart', function(e) { e.preventDefault(); return 
 		}
 	}
 	// havent returned means we have failed to select anything.
-	// If there was an object selected, we deselect it
-	if (selection != null) {
+	// If there was an object selected, we deselect it, except if we are doing mirrrwing, in which case we still want to have that shape selected
+	if (selection != null && curMode.indexOf("mirror") == -1) {
 		selection.color = previousColor;
 		selection = null;
 		valid = false; // Need to clear the old selection border
@@ -229,21 +254,38 @@ canvas.addEventListener('selectstart', function(e) { e.preventDefault(); return 
 	var mouse = getMouse(e);
 	if (dragging != null && selection != null){
 		var mouse = getMouse(e);
+		mouse.x -= dragoffx;
+		mouse.y -= dragoffy;
+		var distanceX = mouse.x - previousPoint.x;
+		var distanceY = mouse.y - previousPoint.y;
+		var backup = selection.copy();
 		// We don't want to drag the object by its top-left corner, we want to drag it
 		// from where we clicked. Thats why we saved the offset and use it here
 		operationLine = new Line(operationPoint,new Point(mouse.x,mouse.y));
-		if(curMode === "transform"){
-			selection.transform(mouse.x - dragoffx,mouse.y - dragoffy);			
+		if(curMode === "translate"){
+			selection.translate(distanceX,distanceY);			
 		}else if(curMode === "scale"){
-			selection.scale(mouse.x - dragoffx,mouse.y - dragoffy);	
+			distanceX = distanceX/100+1;
+			distanceY = distanceY/100+1;
+			selection.scale(distanceX,distanceY,selection.center());	
 		}else if(curMode === "rotate"){
-			var a = mouse.x - operationPoint.x;
-			var b = mouse.y - operationPoint.y;
-			selection.rotate(operationPoint.x, operationPoint.y);	
+			var angle;
+			if(previousPoint.x > mouse.x){
+				angle = 0.1;
+			}else{
+				angle = -0.1;
+			}
+			selection.rotate(operationPoint,angle);	
 		}else if(curMode === "mirror"){
-			selection.mirror(mouse.x - dragoffx,mouse.y - dragoffy);	
+			//i  do the mirror after drawing the mirror line
+			mirrorwing = selection;
+			operationLine = null;
 		}else{
 			operationLine = null;
+		}
+		if(!selection.isOnCanvas()){
+			console.log("transformation out of Canvas! Size of canvas: "+canvas.width +"x"+ canvas.height);
+			selection.restore(backup);
 		}
 		previousPoint.x = mouse.x;
 		previousPoint.y = mouse.y;
@@ -298,7 +340,7 @@ canvas.addEventListener('selectstart', function(e) { e.preventDefault(); return 
 	var mouse = getMouse(e);
 	newShape = createShape(mouse.x, mouse.y, 20, 20, '#FF00FF');
 	if(newShape != undefined){
-	  addShape(newShape);//new Shape(mouse.x - 10, mouse.y - 10, 20, 20, 'rgba(0,255,0,.6)')  
+		addShape(newShape);//new Shape(mouse.x - 10, mouse.y - 10, 20, 20, 'rgba(0,255,0,.6)')  
 	}
 }, true);
 
