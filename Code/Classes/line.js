@@ -63,8 +63,11 @@ Line.prototype.rotate = function(operationPoint,previousMouse,mouse){
 	}
 }
 
-Line.prototype.mirror = function(mouse){
-	return true
+Line.prototype.mirror = function(mirrorLine){
+	var ptList = [this.S,this.E];
+	for (var i = 0 ; i < ptList.length;i++){
+		ptList[i].mirror(mirrorLine);
+	}
 }
 
 Line.prototype.isOnCanvas = function(){

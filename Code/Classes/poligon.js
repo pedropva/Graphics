@@ -117,20 +117,71 @@ Poligon.prototype.contains = function(mouse, tol) {
 		return false;
 	}
 }
-Poligon.prototype.translate = function(previousMouse,mouse){
-	return true;
+Poligon.prototype.translate = function(distanceX,distanceY){
+	for (var i = 0 ; i < this.points.length;i++){
+		this.points[i].translate(distanceX,distanceY);
+	}
 }
 
-Poligon.prototype.scale = function(mouse){
-	return true
+Poligon.prototype.scale = function(distanceX,distanceY,center){
+	for (var i = 0 ; i < this.points.length;i++){
+    	this.points[i].scale(distanceX,distanceY,center);
+	}
 }
 
 Poligon.prototype.rotate = function(operationPoint,previousMouse,mouse){
-	return true
+	for (var i = 0 ; i < this.points.length;i++){
+		this.points[i].rotate(operationPoint,previousMouse,mouse);
+	}
 }
 
-Poligon.prototype.mirror = function(mouse){
-	return true
+Poligon.prototype.mirror = function(mirrorLine){
+	for (var i = 0 ; i < this.points.length;i++){
+		this.points[i].mirror(mirrorLine);
+	}
+}
+
+
+Poligon.prototype.isOnCanvas = function(){
+	var pointsOnCanvas = 0;
+	for (var i = 0 ; i < this.points.length;i++){
+		if(this.points[i].isOnCanvas()){
+			pointsOnCanvas++;		
+		}
+	}
+	if(pointsOnCanvas == this.points.length){
+		return true;
+	}else{
+		return false;
+	}
+}
+
+Poligon.prototype.copy = function(){
+	var arrayOfPoints = [];
+	for (var i = 0 ; i < this.points.length;i++){
+		arrayOfPoints.push(this.points[i].copy());
+	}
+	return new Poligon(arrayOfPoints,this.color);
+}
+
+Poligon.prototype.restore = function(a){
+	var arrayOfPoints = [];
+	for (var i = 0 ; i < a.points.length;i++){
+		arrayOfPoints.push(a.points[i].copy());
+	}
+	this.points = arrayOfPoints;
+	this.color = a.color;
+}
+
+Poligon.prototype.center = function(){
+	var center = new Point(0,0);
+	for(var i=0;i<this.points.length;i++){
+		center.x += this.points[i].x;
+		center.y += this.points[i].y;
+	}
+	center.x=center.x/this.points.length;
+	center.y=center.y/this.points.length;
+	return center;
 }
 
 Poligon.prototype.highlight = function(ctx){

@@ -76,7 +76,7 @@ function draw() {
 
 			if(shape != undefined){    
 				// We can skip the drawing of elements that have moved off the screen:
-				if (shape.x > canvas.width || shape.y > canvas.height ||shape.x + shape.w < 0 || shape.y + shape.h < 0) continue;//TODO use the test shape.isOnCanvas() to test this.
+				if (shape.isOnCanvas()){
 					var previous = ctx.strokeStyle;
 					var previous2 = ctx.fillStyle;
 					shapes[i].draw(ctx);		
@@ -84,8 +84,12 @@ function draw() {
 					ctx.stroke();
 					ctx.strokeStyle = previous;
 					ctx.fillStyle = previous2;
+				}else{
+					console.log("Shape: "+shape+"is out of canvas, deleting it...");
+					deleteShape(shape);
 				}
 			}
+		}
 		// draw selection
 		// right now this is just a stroke along the edge of the selected Shape
 		
@@ -195,8 +199,17 @@ canvas.addEventListener('selectstart', function(e) { e.preventDefault(); return 
 	*/
 	if(e.which == 2){
 		if(curMode.indexOf("mirror") != -1){
-			if(drawing != mirrorwing){
+			if(drawing != null && drawing != mirrorwing && mirrorwing != null){
+				var backup = mirrorwing.copy();
 				mirrorwing.mirror(drawing);// mirror the object and then delete the mirror line
+				if(!mirrorwing.isOnCanvas()){
+					console.log("transformation out of Canvas! Size of canvas: "+canvas.width +"x"+ canvas.height);
+					mirrorwing.restore(backup);
+				}
+				mirrorwing.color = previousColor;
+				mirrorwing = null;
+			}else{
+				alert("please make a line which to mirror the shape!");		
 			}
 			deleteShape(drawing);
 		}
@@ -219,6 +232,10 @@ canvas.addEventListener('selectstart', function(e) { e.preventDefault(); return 
 				//dragoffx = mouse.x - mySel.x;
 				//dragoffy = mouse.y - mySel.y;
 				dragging = true;
+				if(selection != null){
+					console.log(previousColor);
+					selection.color = previousColor;	
+				}
 				selection = mySel;
 				if(selection.color.indexOf("#FF0000") == -1){
 					previousColor = selection.color;
@@ -325,9 +342,7 @@ canvas.addEventListener('selectstart', function(e) { e.preventDefault(); return 
 				drawing.Sy = mouse.y;	
 				drawing.curPoint = 1;
 			}
-			//selection = drawing;
 		}
-		//selection = drawing;
 		valid = false; // Something's drawing so we must redraw
 	}
 }, true);

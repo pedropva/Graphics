@@ -80,21 +80,6 @@ Point.prototype.rotate = function(operationPoint,angle){
 }
 
 Point.prototype.mirror = function(mirrorLine){
-	/*
-	function mirror(p,p0,p1){
-    
-    	var dx, dy, a, b, x, y;
-
-        dx = p1.x - p0.x;
-        dy = p1.y - p0.y;
-        a = (dx * dx - dy * dy) / (dx * dx + dy * dy);
-        b = 2 * dx * dy / (dx * dx + dy * dy);
-        x = Math.round(a * (p.x - p0.x) + b * (p.y - p0.y) + p0.x); 
-        y = Math.round(b * (p.x - p0.x) - a * (p.y - p0.y) + p0.y);
-
-        return new Ponto(x,y);
-    }
-    */
     var dx, dy, a, b;
     dx = mirrorLine.S.x - mirrorLine.E.x;
     dy = mirrorLine.S.y - mirrorLine.E.y;
