@@ -1,12 +1,12 @@
-function Bezier(Sx,Sy,C1x,C1y,C2x,C2y,Ex,Ey,color) {//C1 and C2: Control point 1 and 2
-	this.C1x = C1x || 400;
-	this.C1y = C1y || 300;
-	this.C2x = C2x || 400;
-	this.C2y = C2y || 300;
-	this.Sx = Sx || 400;
-	this.Sy = Sy || 300;
-	this.Ex = Ex || 400;
-	this.Ey = Ey || 300;
+function Bezier(S,C1,C2,E,color) {//C1 and C2: Control point 1 and 2
+	this.C1 = C1 || new Point(100,100);
+	
+	this.C2 = C2 || new Point(200,300);
+	
+	this.S = S || new Point(400,400);
+	
+	this.E = E || new Point(100,150);
+	
 	this.color = color || '#AAAAAA';
 	this.curPoint=1;
 }
@@ -15,8 +15,8 @@ function Bezier(Sx,Sy,C1x,C1y,C2x,C2y,Ex,Ey,color) {//C1 and C2: Control point 1
 Bezier.prototype.draw = function(ctx) {
 	ctx.strokeStyle= this.color;
 	ctx.beginPath();
-	ctx.moveTo(this.Sx,this.Sy);
-	ctx.bezierCurveTo(this.C1x,this.C1y,this.C2x,this.C2y,this.Ex,this.Ey);
+	ctx.moveTo(this.S.x,this.S.y);
+	ctx.bezierCurveTo(this.C1.x,this.C1.y,this.C2.x,this.C2.y,this.E.x,this.E.y);
 	//ctx.closePath();
 }
 
@@ -24,28 +24,7 @@ Bezier.prototype.draw = function(ctx) {
 Bezier.prototype.contains = function(mouse, tol) {
 	// All we have to do is make sure the Mouse X,Y fall in the area between
 	// the shape's X and (X + Width) and its Y and (Y + Height)
-	/*
-	var biggestX;
-	var smallestX;
-	var biggestY;
-	var smallestY;
-	if(this.Sx >= this.Ex){
-		biggestX = this.Sx;
-		smallestX = this.Ex;
-	}else{
-		biggestX = this.Ex;
-		smallestX = this.Sx;
-	}
-	if(this.Sy >= this.Ey){
-		biggestY = this.Sy;
-		smallestY = this.Ey;
-	}else{
-		biggestY = this.Ey;
-		smallestY = this.Sy;
-	}
-	return  (mouse.x > smallestX) && (mouse.x <= biggestX) && (mouse.y > smallestY) && (mouse.y <= biggestY);
-	*/
-	var bbox = calculateBoundingBox(this.Sx,this.Sy,this.C1x,this.C1y,this.C2x,this.C2y,this.Ex,this.Ey);
+	var bbox = calculateBoundingBox(this.S.x,this.S.y,this.C1.x,this.C1.y,this.C2.x,this.C2.y,this.E.x,this.E.y);
 	return (mouse.x > bbox.x) && (mouse.x < bbox.x+bbox.width) && (mouse.y > bbox.y) && (mouse.y < bbox.y+bbox.height)
 }
 
@@ -80,23 +59,73 @@ function calculateBoundingBox(ax, ay, bx, by, cx, cy, dx, dy)	{
     return {x:minx, y:miny, width:maxx-minx, height:maxy-miny};
 }
 
-
-Bezier.prototype.translate = function(mouse){
-	return true;
+Bezier.prototype.translate = function(distanceX,distanceY){
+	var ptList = [this.S,this.E,this.C1,this.C2];
+	for (var i = 0 ; i < ptList.length;i++){
+		ptList[i].translate(distanceX,distanceY);
+	}
 }
 
-Bezier.prototype.scale = function(mouse){
-	return true
+Bezier.prototype.scale = function(distanceX,distanceY,center){
+	var ptList = [this.S,this.E,this.C1,this.C2];
+	for (var i = 0 ; i < ptList.length;i++){
+    	ptList[i].scale(distanceX,distanceY,center);
+	}
 }
 
-Bezier.prototype.rotate = function(mouse){
-	return true
+Bezier.prototype.rotate = function(operationPoint,previousMouse,mouse){
+	var ptList = [this.S,this.E,this.C1,this.C2];
+	for (var i = 0 ; i < ptList.length;i++){
+		ptList[i].rotate(operationPoint,previousMouse,mouse);
+	}
 }
 
-Bezier.prototype.mirror = function(mouse){
-	return true
+Bezier.prototype.mirror = function(mirrorLine){
+	var ptList = [this.S,this.E,this.C1,this.C2];
+	for (var i = 0 ; i < ptList.length;i++){
+		ptList[i].mirror(mirrorLine);
+	}
 }
 
+
+Bezier.prototype.isOnCanvas = function(){
+	var pointsOnCanvas = 0;
+	var ptList = [this.S,this.E,this.C1,this.C2];
+	for (var i = 0 ; i < ptList.length;i++){
+		if(ptList[i].isOnCanvas()){
+			pointsOnCanvas++;		
+		}
+	}
+	if(pointsOnCanvas == ptList.length){
+		return true;
+	}else{
+		return false;
+	}
+}
+
+Bezier.prototype.copy = function(){
+	return new Bezier(this.S.copy(),this.C1.copy(),this.C2.copy(),this.E.copy(),this.color);
+}
+
+Bezier.prototype.restore = function(a){
+	this.S = a.S;
+	this.C1 = a.C1;
+	this.C2 = a.C2;
+	this.E = a.E;
+	this.color = a.color;
+}
+
+Bezier.prototype.center = function(){
+	var center = new Point(0,0);
+	var ptList = [this.S,this.E,this.C1,this.C2];
+	for(var i=0;i<ptList.length;i++){
+		center.x += ptList[i].x;
+		center.y += ptList[i].y;
+	}
+	center.x=center.x/ptList.length;
+	center.y=center.y/ptList.length;
+	return center;
+}
 
 Bezier.prototype.highlight = function(ctx){
 	var aux = ctx.strokeStyle;

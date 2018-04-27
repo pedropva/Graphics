@@ -179,8 +179,8 @@ Poligon.prototype.center = function(){
 		center.x += this.points[i].x;
 		center.y += this.points[i].y;
 	}
-	center.x=center.x/this.points.length;
-	center.y=center.y/this.points.length;
+	center.x = center.x/this.points.length;
+	center.y = center.y/this.points.length;
 	return center;
 }
 

@@ -127,13 +127,13 @@ function getMouse(e) {
   // We return a simple javascript object (a hash) with x and y defined
   return {x: mx, y: my};
 }
-function createShape(x,y,w,h,color){
+function createShape(x,y,w,h,color,font){
 	switch(curMode){
 		case "point":
 		if(drawing != null && drawing.constructor.name == "Point"){
 			return undefined;
 		}
-		return new Point(x,y);
+		return new Point(x,y,color);
 		case "line":
 		if(drawing != null && drawing.constructor.name == "Line"){
 			//return undefined;	
@@ -145,24 +145,24 @@ function createShape(x,y,w,h,color){
 			drawing.curPoint++;
 			return undefined;
 		}
-		drawing = new Poligon([new Point(x,y)],"#00FF00");
+		drawing = new Poligon([new Point(x,y)],color);
 		return drawing
 		case "arc":
 		if(drawing != null && drawing.constructor.name == "Arc"){
 			drawing.mode = (drawing.mode+1)%2;
 			return undefined;
 		}
-		drawing = new Arc(x,y,0,x,y,color);
+		drawing = new Arc(new Point(x,y),0,x,y,color);
 		return drawing;
 		case "bezier":
 		if(drawing != null && drawing.constructor.name == "Bezier"){
 			drawing.curPoint++;
 			return undefined;
 		}
-		drawing = new Bezier(x,y,x+50,y+50,x+60,y+30,x,y,color);
+		drawing = new Bezier(new Point(x,y),new Point(x+50,y+50),new Point(x+60,y-30),new Point(x,y),color);
 		return drawing;
 		case "text":
-		drawing = new Text(x,y,"Hi",color);
+		drawing = new Text(new Point(x,y),"Hi",font,color);
 		return drawing;
 		case "mirror":
 		if(selection != null || mirrorwing != null){
@@ -316,8 +316,8 @@ canvas.addEventListener('selectstart', function(e) { e.preventDefault(); return 
 		}else if(drawing.constructor.name.indexOf("Poligon") != -1){
 			drawing.points[drawing.curPoint] = new Point(mouse.x,mouse.y);
 		}else if(drawing.constructor.name.indexOf("Arc") != -1){
-			var a = mouse.x - drawing.Cx;
-			var b = mouse.y - drawing.Cy;
+			var a = mouse.x - drawing.C.x;
+			var b = mouse.y - drawing.C.y;
 			var r = Math.sqrt(a*a + b*b);
 			drawing.R = r;
 			var angleRadians = Math.atan2(b,a);// angle in radians
@@ -329,17 +329,17 @@ canvas.addEventListener('selectstart', function(e) { e.preventDefault(); return 
 			}
 		}else if(drawing.constructor.name.indexOf("Bezier") != -1){
 			if(drawing.curPoint == 1){
-				drawing.Ex= mouse.x;
-				drawing.Ey = mouse.y;	
+				drawing.E.x= mouse.x;
+				drawing.E.y = mouse.y;	
 			}else if(drawing.curPoint == 2){
-				drawing.C1x= mouse.x;
-				drawing.C1y = mouse.y;	
+				drawing.C1.x= mouse.x;
+				drawing.C1.y = mouse.y;	
 			}else if(drawing.curPoint == 3){
-				drawing.C2x= mouse.x;
-				drawing.C2y = mouse.y;	
+				drawing.C2.x= mouse.x;
+				drawing.C2.y = mouse.y;	
 			}else {
-				drawing.Sx= mouse.x;
-				drawing.Sy = mouse.y;	
+				drawing.S.x= mouse.x;
+				drawing.S.y = mouse.y;	
 				drawing.curPoint = 1;
 			}
 		}
@@ -353,7 +353,7 @@ canvas.addEventListener('selectstart', function(e) { e.preventDefault(); return 
   canvas.addEventListener('dblclick', function(e) {
 	selection =null;
 	var mouse = getMouse(e);
-	newShape = createShape(mouse.x, mouse.y, 20, 20, '#FF00FF');
+	newShape = createShape(mouse.x, mouse.y, 20, 20, '#FF00FF',"30px Arial");
 	if(newShape != undefined){
 		addShape(newShape);//new Shape(mouse.x - 10, mouse.y - 10, 20, 20, 'rgba(0,255,0,.6)')  
 	}
@@ -416,7 +416,7 @@ function saveCanvas(){
 			}else if(shapes[y].constructor.name.indexOf("Arc") != -1){
 				localStorage.setItem(y,shapes[y].constructor.name+":"+shapes[y].Cx+":"+shapes[y].Cy+":"+shapes[y].R+":"+shapes[y].Sa+":"+shapes[y].Ea+":"+shapes[y].color);			
 			}else if(shapes[y].constructor.name.indexOf("Text") != -1){
-				localStorage.setItem(y,shapes[y].constructor.name+":"+shapes[y].x+":"+shapes[y].y+":"+shapes[y].text+":"+shapes[y].color+":"+shapes[y].font);			
+				localStorage.setItem(y,shapes[y].constructor.name+":"+shapes[y].x+":"+shapes[y].y+":"+shapes[y].text+":"+shapes[y].font+":"+shapes[y].color);			
 			}
 		}
 	}else{
