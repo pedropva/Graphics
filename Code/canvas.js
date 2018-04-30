@@ -24,6 +24,8 @@ var mirrorwing = null;//holds the id of the shape we're currently mirrorwing
  // the current selected object.
  // In the future we could turn this into an array for multiple selection
 var selection = null;
+var convexhullPoints = [];
+var convexhull = null; 
 var operationPoint = null;
 var operationLine = null;
 var previousPoint = new Point(0,0);
@@ -85,7 +87,9 @@ function draw() {
 					ctx.strokeStyle = previous;
 					ctx.fillStyle = previous2;
 				}else{
-					console.log("Shape: "+shape+"is out of canvas, deleting it...");
+					console.log("Shape: ");
+					console.log(shape);
+					console.log(" is out of canvas, deleting it...");
 					deleteShape(shape);
 				}
 			}
@@ -133,7 +137,7 @@ function createShape(x,y,w,h,color,font){
 		if(drawing != null && drawing.constructor.name == "Point"){
 			return undefined;
 		}
-		return new Point(x,y,color);
+		return new Point(x,y,5,5,color);
 		case "line":
 		if(drawing != null && drawing.constructor.name == "Line"){
 			//return undefined;	
@@ -198,6 +202,16 @@ canvas.addEventListener('selectstart', function(e) { e.preventDefault(); return 
 	3 for the right button
 	*/
 	if(e.which == 2){
+		if(curMode.indexOf("convexhull") != -1){
+			if(convexhullPoints.length == 0){
+				deleteShape(convexhull);
+				convexhullPoints = [];
+			}else{
+				convexhull = new Poligon(jarvisMarch(convexhullPoints),"#000000",1);
+				addShape(convexhull);
+				console.log(convexhull);
+			}
+		}
 		if(curMode.indexOf("mirror") != -1){
 			if(drawing != null && drawing != mirrorwing && mirrorwing != null){
 				var backup = mirrorwing.copy();
@@ -251,12 +265,22 @@ canvas.addEventListener('selectstart', function(e) { e.preventDefault(); return 
 					operationPoint = new Point(mouse.x,mouse.y);
 					previousPoint.x = mouse.x;
 					previousPoint.y = mouse.y;
+				}else if(curMode =="convexhull"){
+					if(selection.constructor.name.indexOf("Poligon") != -1){
+						var auxArray = [];
+						auxArray = convexhullPoints;
+						convexhullPoints = auxArray.concat(selection.points).unique();
+						console.log(convexhullPoints);
+					}
 				}
 				valid = false;
 				console.log(selection);
 				return;
 			}
 		}
+	}
+	if(convexhullPoints.length != 0){
+		convexhullPoints = [];
 	}
 	// havent returned means we have failed to select anything.
 	// If there was an object selected, we deselect it, except if we are doing mirrrwing, in which case we still want to have that shape selected
@@ -267,7 +291,7 @@ canvas.addEventListener('selectstart', function(e) { e.preventDefault(); return 
 	}
 	
 }, true);
-  canvas.addEventListener('mousemove', function(e) {
+canvas.addEventListener('mousemove', function(e) {
 	var mouse = getMouse(e);
 	if (dragging != null && selection != null){
 		var mouse = getMouse(e);
@@ -301,8 +325,10 @@ canvas.addEventListener('selectstart', function(e) { e.preventDefault(); return 
 			operationLine = null;
 		}
 		if(!selection.isOnCanvas()){
+			console.log(selection);
 			console.log("transformation out of Canvas! Size of canvas: "+canvas.width +"x"+ canvas.height);
 			selection.restore(backup);
+			console.log(selection);
 		}
 		previousPoint.x = mouse.x;
 		previousPoint.y = mouse.y;
@@ -316,8 +342,8 @@ canvas.addEventListener('selectstart', function(e) { e.preventDefault(); return 
 		}else if(drawing.constructor.name.indexOf("Poligon") != -1){
 			drawing.points[drawing.curPoint] = new Point(mouse.x,mouse.y);
 		}else if(drawing.constructor.name.indexOf("Arc") != -1){
-			var a = mouse.x - drawing.C.x;
-			var b = mouse.y - drawing.C.y;
+			var a = mouse.x - drawing.Center.x;
+			var b = mouse.y - drawing.Center.y;
 			var r = Math.sqrt(a*a + b*b);
 			drawing.R = r;
 			var angleRadians = Math.atan2(b,a);// angle in radians
@@ -353,7 +379,7 @@ canvas.addEventListener('selectstart', function(e) { e.preventDefault(); return 
   canvas.addEventListener('dblclick', function(e) {
 	selection =null;
 	var mouse = getMouse(e);
-	newShape = createShape(mouse.x, mouse.y, 20, 20, '#FF00FF',"30px Arial");
+	newShape = createShape(mouse.x, mouse.y, 5, 5, '#0000FF',"30px Arial");
 	if(newShape != undefined){
 		addShape(newShape);//new Shape(mouse.x - 10, mouse.y - 10, 20, 20, 'rgba(0,255,0,.6)')  
 	}

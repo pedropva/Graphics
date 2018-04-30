@@ -34,7 +34,12 @@ Arc.prototype.translate = function(distanceX,distanceY){
 }
 
 Arc.prototype.scale = function(distanceX,distanceY,center){
-	this.R += distanceX;
+	if(distanceX > 1){
+		distanceX = 1.5;
+	}else{
+		distanceX = 0.9;
+	}
+	this.R *= distanceX;
 }
 
 Arc.prototype.rotate = function(operationPoint,previousMouse,mouse){
@@ -42,33 +47,35 @@ Arc.prototype.rotate = function(operationPoint,previousMouse,mouse){
 }
 
 Arc.prototype.mirror = function(mirrorLine){
-	this.Center.points[i].mirror(mirrorLine);
+	this.Center.mirror(mirrorLine);
+	this.Ea = (this.Ea - Math.PI);
+	this.Sa = (this.Sa - Math.PI);
 }
 
 
 Arc.prototype.isOnCanvas = function(){
 	var points = 0;
-	if(new Point(this.Center.x+R,this.Center.y+R).isOnCanvas()){
+	if(new Point(this.Center.x+this.R,this.Center.y+this.R).isOnCanvas()){
 		points++;
 	}
-	if(new Point(this.Center.x-R,this.Center.y+R).isOnCanvas()){
+	if(new Point(this.Center.x-this.R,this.Center.y+this.R).isOnCanvas()){
 		points++;
 	}
-	if(new Point(this.Center.x+R,this.Center.y-R).isOnCanvas()){
+	if(new Point(this.Center.x+this.R,this.Center.y-this.R).isOnCanvas()){
 		points++;
 	}
-	if(new Point(this.Center.x-R,this.Center.y-R).isOnCanvas()){
+	if(new Point(this.Center.x-this.R,this.Center.y-this.R).isOnCanvas()){
 		points++;
 	}
 	return (points == 4)
 }
 
 Arc.prototype.copy = function(){
-	return new Arc(this.Center,this.R,this.Sa,this.Ea,this.color);
+	return new Arc(this.Center.copy(),this.R,this.Sa,this.Ea,this.color);
 }
 
 Arc.prototype.restore = function(a){
-	this.Center = a.Center;
+	this.Center.restore(a.Center);
 	this.R = a.R;
 	this.Sa = a.Sa;
 	this.Ea = a.Ea;
@@ -79,15 +86,4 @@ Arc.prototype.center = function(){
 	return this.Center;
 }
 
-Arc.prototype.invertedAngle = function(ctx){
-	while(a < 0)
-    {
-      a += 2*Math.PI;
-    }
-    while(a > 2*Math.PI)
-    {
-      a -= 2*Math.PI;
-    }
-    return a;
-}
 Arc.prototype.highlight = function(ctx){}

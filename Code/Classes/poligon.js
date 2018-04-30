@@ -1,20 +1,26 @@
-function Poligon(points,color) {//points is a array with the sequence of points to close the polygon
+function Poligon(points,color,fill) {//points is a array with the sequence of points to close the polygon
 	this.color = color || '#AAAAAA';
-	this.points = points || [new Point(200,200),new Point(200,300),new Point(300,300),new Point(300,200)]//[200,200,200,300,300,300,300,200]
+	this.points = points || [new Point(200,200),new Point(200,300),new Point(300,300),new Point(300,200)];//[200,200,200,300,300,300,300,200]
+	this.fill = fill || this.color;
 	this.curPoint = 1;
 }
 
 // Draws this shape to a given context
 Poligon.prototype.draw = function(ctx) {
 	ctx.strokeStyle = this.color;
-	ctx.fillStyle = this.color;
+	if(this.fill != 1){
+		this.fill = this.color;
+	}
+	ctx.fillStyle = this.fill;
 	ctx.beginPath();
 	ctx.moveTo(this.points[0].x,this.points[0].y);
 	var i=0;
 	for (i; i < parseInt(this.points.length); i++) {
 		ctx.lineTo(this.points[i].x,this.points[i].y);
 	}
-	ctx.fill()
+	if(this.fill != 1){
+		ctx.fill();	
+	}
 }
 
 // Determine if a poligon is inside the mouse's bounds

@@ -6,6 +6,11 @@ h1 {
     color: white;
     text-align: center;
 }
+
+.transform{
+	height: 20px;
+	width: 100px;
+}
 #paint{
 	display: table-row;
 }
@@ -14,7 +19,7 @@ h1 {
 }
 #toolbar{
     display: table-caption;
-    margin-bottom: 26%;
+    margin-bottom: 158%;
 }
 #Point{
 	height: 50px;

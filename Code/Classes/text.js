@@ -25,9 +25,14 @@ Text.prototype.translate = function(distanceX,distanceY){
 }
 
 Text.prototype.scale = function(distanceX,distanceY,coordinates){
-	var newSize = (parseInt(this.font.substring(0,2))+distanceX);
-	if(newSize < 100 && newSize > 1){
-		this.font = newSize + this.font.substring(2);	
+	if(distanceX > 1){
+		distanceX = 1.5;
+	}else{
+		distanceX = 0.9;
+	}
+	var newSize = parseInt((parseInt(this.font.substring(0,this.font.indexOf('p')))*distanceX));
+	if(newSize < 150 && newSize > 5){
+		this.font = newSize + this.font.substring(this.font.indexOf('p'));		
 	}
 }
 
@@ -36,7 +41,7 @@ Text.prototype.rotate = function(operationPoint,previousMouse,mouse){
 }
 
 Text.prototype.mirror = function(mirrorLine){
-	this.coordinates.points[i].mirror(mirrorLine);
+	this.coordinates.mirror(mirrorLine);
 }
 
 

@@ -36,8 +36,6 @@ Point.prototype.translate = function(distanceX,distanceY){//previous Mouse coord
 Point.prototype.scale = function(distanceX,distanceY,center){
 	var p0 = [];
 
-	console.log(distanceX +","+ distanceY);
-
 	var mat =  [[distanceX,0,0],
 				[0,distanceY,0],
 				[0,0,1]];
@@ -114,6 +112,78 @@ Point.prototype.restore = function(a){
 	this.x = a.x;
 	this.y = a.y;
 	this.color = a.color;
+}
+
+Point.prototype.add = function(other)
+{
+    this.x += other.x;
+    this.y += other.y;
+    return this;
+}
+
+Point.prototype.angleInCycles = function()
+{
+    var returnValue = Math.atan2(this.y, this.x) / (2 * Math.PI);
+    if (returnValue < 0)
+    {
+        returnValue += 1;
+    }
+    return returnValue;
+}
+
+Point.prototype.overwriteWith = function(other)
+{
+    this.x = other.x;
+    this.y = other.y;
+    return this;
+}
+
+Point.prototype.dotProduct = function(other)
+{
+    return this.x * other.x + this.y * other.y;
+}
+
+Point.prototype.floor = function()
+{
+    this.x = Math.floor(this.x);
+    this.y = Math.floor(this.y);
+    return this;
+}
+
+Point.prototype.magnitude = function()
+{
+    return Math.sqrt(this.x * this.x + this.y * this.y);
+}
+Point.prototype.subtract = function(other)
+{
+    this.x -= other.x;
+    this.y -= other.y;
+    return this;
+}
+Point.prototype.multiply = function(other)
+{
+    this.x *= other.x;
+    this.y *= other.y;
+    return this;
+}
+
+Point.prototype.randomize = function()
+{
+    this.x = Math.random();
+    this.y = Math.random();
+    return this;
+}
+
+Point.prototype.subtract = function(other)
+{
+    this.x -= other.x;
+    this.y -= other.y;
+    return this;
+}
+
+Point.prototype.toString = function()
+{
+    return ("" + this.x + "," + this.y);
 }
 
 Point.prototype.highlight = function(ctx){
