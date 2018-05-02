@@ -163,7 +163,7 @@ function createShape(x,y,w,h,color,font){
 			drawing.curPoint++;
 			return undefined;
 		}
-		drawing = new Bezier(new Point(x,y),new Point(x+50,y+50),new Point(x+60,y-30),new Point(x,y),color);
+		drawing = new Bezier(new Point(x,y),new Point(x,y),new Point(x,y),new Point(x,y),color);
 		return drawing;
 		case "text":
 		drawing = new Text(new Point(x,y),"Hi",font,color);
@@ -438,11 +438,11 @@ function saveCanvas(){
 				}
 				localStorage.setItem(y,shapes[y].constructor.name +":"+ auxSave+":"+shapes[y].color);			
 			}else if(shapes[y].constructor.name.indexOf("Bezier") != -1){
-				localStorage.setItem(y,shapes[y].constructor.name+":"+shapes[y].Sx+":"+shapes[y].Sy+":"+shapes[y].C1x+":"+shapes[y].C1y+":"+shapes[y].C2x+":"+shapes[y].C2y+":"+shapes[y].Ex+":"+shapes[y].Ey+":"+shapes[y].color);			
+				localStorage.setItem(y,shapes[y].constructor.name+":"+shapes[y].S.x+":"+shapes[y].S.y+":"+shapes[y].C1.x+":"+shapes[y].C1.y+":"+shapes[y].C2.x+":"+shapes[y].C2.y+":"+shapes[y].E.x+":"+shapes[y].E.y+":"+shapes[y].color);			
 			}else if(shapes[y].constructor.name.indexOf("Arc") != -1){
-				localStorage.setItem(y,shapes[y].constructor.name+":"+shapes[y].Cx+":"+shapes[y].Cy+":"+shapes[y].R+":"+shapes[y].Sa+":"+shapes[y].Ea+":"+shapes[y].color);			
+				localStorage.setItem(y,shapes[y].constructor.name+":"+shapes[y].Center.x+":"+shapes[y].Center.y+":"+shapes[y].R+":"+shapes[y].Sa+":"+shapes[y].Ea+":"+shapes[y].color);			
 			}else if(shapes[y].constructor.name.indexOf("Text") != -1){
-				localStorage.setItem(y,shapes[y].constructor.name+":"+shapes[y].x+":"+shapes[y].y+":"+shapes[y].text+":"+shapes[y].font+":"+shapes[y].color);			
+				localStorage.setItem(y,shapes[y].constructor.name+":"+shapes[y].coordinates.x+":"+shapes[y].coordinates.y+":"+shapes[y].text+":"+shapes[y].font+":"+shapes[y].color);			
 			}
 		}
 	}else{
@@ -473,11 +473,11 @@ function loadCanvas(){
 				}
 				shapes.push(auxLoad);
 			}else if(local_shape[0].indexOf("Bezier") != -1){
-				shapes.push(new Bezier(parseInt(local_shape[1]),parseInt(local_shape[2]),parseInt(local_shape[3]),parseInt(local_shape[4]),parseInt(local_shape[5]),parseInt(local_shape[6]),parseInt(local_shape[7]),parseInt(local_shape[8]),local_shape[9])); 
+				shapes.push(new Bezier(new Point(parseInt(local_shape[1]),parseInt(local_shape[2])),new Point(parseInt(local_shape[3]),parseInt(local_shape[4])),new Point(parseInt(local_shape[5]),parseInt(local_shape[6])),new Point(parseInt(local_shape[7]),parseInt(local_shape[8])),local_shape[9])); 
 			}else if(local_shape[0].indexOf("Arc") != -1){
-				shapes.push(new Arc(parseInt(local_shape[1]),parseInt(local_shape[2]),parseInt(local_shape[3]),parseInt(local_shape[4]),parseInt(local_shape[5]),local_shape[6])); 
+				shapes.push(new Arc(new Point(parseInt(local_shape[1]),parseInt(local_shape[2])),parseInt(local_shape[3]),parseInt(local_shape[4]),parseInt(local_shape[5]),local_shape[6])); 
 			}else if(local_shape[0].indexOf("Text") != -1){
-				shapes.push(new Text(parseInt(local_shape[1]),parseInt(local_shape[2]),local_shape[3],local_shape[4],local_shape[5])); 
+				shapes.push(new Text(new Point(parseInt(local_shape[1]),parseInt(local_shape[2])),local_shape[3],local_shape[4],local_shape[5])); 
 			}
 		}
 		valid = false;

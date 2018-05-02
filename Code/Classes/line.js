@@ -97,6 +97,7 @@ Line.prototype.restore = function(a){
 
 Line.prototype.center = function(){
 	return new Point(this.S.x+this.E.x/2,this.S.y+this.E.y/2);
+	
 }
 
 Line.prototype.highlight = function(ctx,selectionWidth){
